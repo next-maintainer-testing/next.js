@@ -22,8 +22,15 @@
  * API in production mode for testing purposes.
  */
 
-import { NextInstance, nextTestSetup, isNextDev } from 'e2e-utils'
+import {
+  NextInstance,
+  nextTestSetup,
+  isNextDev,
+  isNextDeploy,
+  type Playwright as NextBrowser,
+} from 'e2e-utils'
 import { instant } from '@next/playwright'
+import { assertNoConsoleErrors } from 'next-test-utils'
 import type * as Playwright from 'playwright'
 import { join } from 'node:path'
 
@@ -35,15 +42,33 @@ import { join } from 'node:path'
  * Next.js test infra wraps Playwright with its own BrowserInterface, but
  * the Instant Navigation Testing API is designed to work with native Playwright.
  */
+// The browser and full-document navigation requests for the currently running
+// test. openPage populates these so a shared afterEach can assert there were no
+// console errors (e.g. a failed hydration) and individual tests can assert that
+// releasing the instant lock resolves client-side instead of hard reloading.
+let activeBrowser: NextBrowser | undefined
+let navigationRequests: string[] = []
+
 async function openPage(
   next: NextInstance,
   url: string,
   options?: { cookies?: Array<{ name: string; value: string }> }
 ): Promise<Playwright.Page> {
   let page: Playwright.Page
-  await next.browser(url, {
+  navigationRequests = []
+  activeBrowser = await next.browser(url, {
+    // Surface uncaught page errors (e.g. a failed hydration) as console logs so
+    // assertNoConsoleErrors fails the test on them.
+    pushErrorAsConsoleLog: true,
     beforePageLoad(p) {
       page = p
+      // Record full-document navigations so tests can assert that releasing the
+      // instant lock does not trigger a hard reload.
+      p.on('request', (request) => {
+        if (request.isNavigationRequest()) {
+          navigationRequests.push(new URL(request.url()).pathname)
+        }
+      })
       if (options?.cookies) {
         const { hostname } = new URL(next.url)
         p.context().addCookies(
@@ -63,12 +88,35 @@ async function openPage(
   return page
 }
 
+afterEach(async () => {
+  if (activeBrowser) {
+    // Console-error checking targets production minified React errors (e.g. a
+    // failed hydration on deploy, which is how the instant bootstrap regression
+    // surfaced). Development legitimately logs warnings here (such as a
+    // blocking-route prerender insight), so only assert in production.
+    if (!isNextDev) {
+      // TODO: Hydration is currently broken on deploy, so skip this check until
+      // it is fixed.
+      if (!isNextDeploy) {
+        await assertNoConsoleErrors(activeBrowser)
+      }
+    }
+    activeBrowser = undefined
+  }
+})
+
+// The Instant Navigation lock re-engages on a freshly loaded document via the
+// prerendered-shell bootstrap (`self.__next_instant_test`). That bootstrap is
+// embedded into the prelude in #95222; until then it is missing from the
+// deploy-served document, so any test that drives a full-page load under the
+// lock (a plain-anchor MPA navigation or a reload) engages the lock unreliably
+// on deploy. We skip those in deploy mode and un-skip them in #95222 by turning
+// this back into a plain `it`.
+const itSkipDeploy = isNextDeploy ? it.skip : it
+
 describe('instant-navigation-testing-api', () => {
   const { next } = nextTestSetup({
     files: join(__dirname, 'fixtures', 'default'),
-    // Skip deployment tests because the exposeTestingApiInProductionBuild flag
-    // doesn't exist in the production version of Next.js yet
-    skipDeployment: true,
   })
 
   it('renders prefetched loading shell instantly during navigation', async () => {
@@ -89,12 +137,16 @@ describe('instant-navigation-testing-api', () => {
       expect(await dynamicContent.count()).toBe(0)
     })
 
-    // After exiting the instant scope, dynamic content streams in
+    // After exiting the instant scope, dynamic content streams in. Releasing
+    // the lock must resolve client-side rather than hard reloading the
+    // document.
+    const navigationsAtUnlock = navigationRequests.length
     const dynamicContent = page.locator('[data-testid="dynamic-content"]')
     await dynamicContent.waitFor({ state: 'visible' })
     expect(await dynamicContent.textContent()).toContain(
       'Dynamic content loaded'
     )
+    expect(navigationRequests.length).toBe(navigationsAtUnlock)
   })
 
   it('renders runtime-prefetched content instantly during navigation', async () => {
@@ -223,7 +275,8 @@ describe('instant-navigation-testing-api', () => {
     })
   })
 
-  it('renders shell on page reload', async () => {
+  // prettier-ignore
+  itSkipDeploy('renders shell on page reload', async () => {
     const page = await openPage(next, '/target-page')
 
     // Wait for the page to fully load with dynamic content
@@ -243,16 +296,30 @@ describe('instant-navigation-testing-api', () => {
 
       // Dynamic content has not streamed in yet
       expect(await dynamicContent.count()).toBe(0)
+
+      // Wait for the instant-mode hydration to finish before releasing the
+      // lock. This mirrors real usage, where the cookie is cleared (e.g. via
+      // DevTools) after the page is interactive, so the unlock resolves
+      // client-side. Releasing before hydration completes intentionally falls
+      // back to a hard reload (see refreshOnInstantNavigationUnlock).
+      await page.waitForFunction(
+        () => (globalThis as any).__NEXT_HYDRATED === true
+      )
     })
 
-    // After exiting the instant scope, dynamic content streams in
+    // After exiting the instant scope, dynamic content streams in. Releasing
+    // the lock must resolve client-side rather than hard reloading the
+    // document.
+    const navigationsAtUnlock = navigationRequests.length
     await dynamicContent.waitFor({ state: 'visible' })
     expect(await dynamicContent.textContent()).toContain(
       'Dynamic content loaded'
     )
+    expect(navigationRequests.length).toBe(navigationsAtUnlock)
   })
 
-  it('renders shell on MPA navigation via plain anchor', async () => {
+  // prettier-ignore
+  itSkipDeploy('renders shell on MPA navigation via plain anchor', async () => {
     const page = await openPage(next, '/')
 
     await instant(page, async () => {
@@ -279,7 +346,8 @@ describe('instant-navigation-testing-api', () => {
     )
   })
 
-  it('reload followed by MPA navigation, both block dynamic data', async () => {
+  // prettier-ignore
+  itSkipDeploy('reload followed by MPA navigation, both block dynamic data', async () => {
     const page = await openPage(next, '/')
 
     await instant(page, async () => {
@@ -310,7 +378,7 @@ describe('instant-navigation-testing-api', () => {
     )
   })
 
-  it('successive MPA navigations within instant scope', async () => {
+  itSkipDeploy('successive MPA navigations within instant scope', async () => {
     const page = await openPage(next, '/')
 
     await instant(page, async () => {
@@ -424,7 +492,8 @@ describe('instant-navigation-testing-api', () => {
       expect(await cookieValue.textContent()).toContain('testCookie: hello')
     })
 
-    it('does not include cookie values in instant shell during page load', async () => {
+    // prettier-ignore
+    itSkipDeploy('does not include cookie values in instant shell during page load', async () => {
       const page = await openPage(next, '/', {
         cookies: [{ name: 'testCookie', value: 'hello' }],
       })
@@ -449,43 +518,17 @@ describe('instant-navigation-testing-api', () => {
     })
   })
 
-  // Verifies that dynamic route params and search params are excluded from the
-  // instant navigation shell. The shell should only contain static content —
-  // these runtime values should be blocked behind a Suspense boundary until the
-  // instant lock is released. (Cookies are session data carried by the app
-  // shell and are covered separately below.)
+  // Verifies that search params are excluded from the instant navigation shell.
+  // The shell should only contain static content — these runtime values should
+  // be blocked behind a Suspense boundary until the instant lock is released.
+  // (Cookies are session data carried by the app shell, and dynamic route
+  // params without `generateStaticParams` are covered separately below.)
   //
-  // Each test route reads a different runtime param inside a <Suspense>
-  // boundary without opting into `instant: { prefetch: 'runtime' }`.
-  // During the instant scope, the static page title should be visible and the
-  // Suspense fallback should be shown, but the resolved param value should
-  // NOT be present.
-  describe('runtime params are excluded from instant shell', () => {
-    it('does not include dynamic param values in instant shell during client navigation', async () => {
-      const page = await openPage(next, '/')
-
-      await instant(page, async () => {
-        await page.click('#link-to-dynamic-params')
-
-        // Static page title is visible
-        const title = page.locator('[data-testid="dynamic-params-title"]')
-        await title.waitFor({ state: 'visible' })
-
-        // Suspense fallback is visible
-        const fallback = page.locator('[data-testid="params-fallback"]')
-        await fallback.waitFor({ state: 'visible' })
-
-        // Param value is NOT in the shell
-        const paramValue = page.locator('[data-testid="param-value"]')
-        expect(await paramValue.count()).toBe(0)
-      })
-
-      // After exiting instant scope, param value streams in
-      const paramValue = page.locator('[data-testid="param-value"]')
-      await paramValue.waitFor({ state: 'visible' })
-      expect(await paramValue.textContent()).toContain('slug: unknown')
-    })
-
+  // The route reads the search param inside a <Suspense> boundary without
+  // opting into `instant: { prefetch: 'runtime' }`. During the instant scope,
+  // the static page title should be visible and the Suspense fallback should be
+  // shown, but the resolved value should NOT be present.
+  describe('search params are excluded from instant shell', () => {
     it('does not include search param values in instant shell during client navigation', async () => {
       const page = await openPage(next, '/')
 
@@ -515,32 +558,8 @@ describe('instant-navigation-testing-api', () => {
       expect(await searchParamContent.textContent()).toContain('foo: bar')
     })
 
-    it('does not include dynamic param values in instant shell during page load', async () => {
-      const page = await openPage(next, '/')
-
-      await instant(page, async () => {
-        await page.click('#plain-link-to-dynamic-params')
-
-        // Static page title is visible
-        const title = page.locator('[data-testid="dynamic-params-title"]')
-        await title.waitFor({ state: 'visible' })
-
-        // Suspense fallback is visible
-        const fallback = page.locator('[data-testid="params-fallback"]')
-        await fallback.waitFor({ state: 'visible' })
-
-        // Param value is NOT in the shell
-        const paramValue = page.locator('[data-testid="param-value"]')
-        expect(await paramValue.count()).toBe(0)
-      })
-
-      // After exiting instant scope, param value streams in
-      const paramValue = page.locator('[data-testid="param-value"]')
-      await paramValue.waitFor({ state: 'visible', timeout: 10000 })
-      expect(await paramValue.textContent()).toContain('slug: unknown')
-    })
-
-    it('does not include search param values in instant shell during page load', async () => {
+    // prettier-ignore
+    itSkipDeploy('does not include search param values in instant shell during page load', async () => {
       const page = await openPage(next, '/')
 
       await instant(page, async () => {
@@ -575,66 +594,144 @@ describe('instant-navigation-testing-api', () => {
       const page = await openPage(next, '/')
 
       await instant(page, async () => {
-        await page.click('#link-to-static-dynamic-params')
+        await page.click('#link-to-static-params')
 
         // Static page title is visible
-        const title = page.locator('[data-testid="dynamic-params-title"]')
+        const title = page.locator('[data-testid="static-params-title"]')
         await title.waitFor({ state: 'visible' })
 
         // Param value IS in the shell (slug 'hello' is in generateStaticParams)
-        const paramValue = page.locator('[data-testid="param-value"]')
+        const paramValue = page.locator('[data-testid="static-param-value"]')
         await paramValue.waitFor({ state: 'visible' })
         expect(await paramValue.textContent()).toContain('slug: hello')
 
         // Suspense fallback is NOT visible
-        const fallback = page.locator('[data-testid="params-fallback"]')
+        const fallback = page.locator('[data-testid="static-params-fallback"]')
         expect(await fallback.count()).toBe(0)
       })
     })
 
-    it('includes statically generated param values in instant shell during page load', async () => {
+    // prettier-ignore
+    itSkipDeploy('includes statically generated param values in instant shell during page load', async () => {
       const page = await openPage(next, '/')
 
       await instant(page, async () => {
-        await page.click('#plain-link-to-static-dynamic-params')
+        await page.click('#plain-link-to-static-params')
 
         // Static page title is visible
-        const title = page.locator('[data-testid="dynamic-params-title"]')
+        const title = page.locator('[data-testid="static-params-title"]')
         await title.waitFor({ state: 'visible' })
 
         // Param value IS in the shell (slug 'hello' is in generateStaticParams)
-        const paramValue = page.locator('[data-testid="param-value"]')
+        const paramValue = page.locator('[data-testid="static-param-value"]')
         await paramValue.waitFor({ state: 'visible' })
         expect(await paramValue.textContent()).toContain('slug: hello')
 
         // Suspense fallback is NOT visible
-        const fallback = page.locator('[data-testid="params-fallback"]')
+        const fallback = page.locator('[data-testid="static-params-fallback"]')
         expect(await fallback.count()).toBe(0)
       })
     })
   })
 
-  it('does not bake dynamic route params into the instant shell when no generateStaticParams is defined', async () => {
-    const page = await openPage(next, '/')
+  // A route with no `generateStaticParams` is never fallback-upgradeable, so a
+  // concrete param render is never cached back into the static prefetch shell.
+  // The param read therefore stays a dynamic write behind the Suspense boundary
+  // and is gated by the instant lock — it must never appear in the instant
+  // shell, regardless of how the navigation is triggered. (A route that does
+  // define `generateStaticParams` is exercised above; there a non-listed param
+  // legitimately upgrades to static after its first render, so it is not a
+  // reliable runtime value to assert exclusion on.)
+  describe('dynamic route params without generateStaticParams are excluded from instant shell', () => {
+    it('during client navigation', async () => {
+      const page = await openPage(next, '/')
 
-    await instant(page, async () => {
-      await page.click('#link-to-ungenerated-params')
+      await instant(page, async () => {
+        await page.click('#link-to-ungenerated-params')
 
-      // Suspense fallback is visible in the instant shell
-      const fallback = page.locator(
-        '[data-testid="ungenerated-params-fallback"]'
-      )
-      await fallback.waitFor({ state: 'visible' })
+        // Suspense fallback is visible in the instant shell
+        const fallback = page.locator(
+          '[data-testid="ungenerated-params-fallback"]'
+        )
+        await fallback.waitFor({ state: 'visible' })
 
-      // The resolved param value must not be present in the shell
+        // The resolved param value must not be present in the shell
+        const paramValue = page.locator(
+          '[data-testid="ungenerated-param-value"]'
+        )
+        expect(await paramValue.count()).toBe(0)
+      })
+
+      // After the instant scope exits, the param value streams in normally
       const paramValue = page.locator('[data-testid="ungenerated-param-value"]')
-      expect(await paramValue.count()).toBe(0)
+      await paramValue.waitFor({ state: 'visible' })
+      expect(await paramValue.textContent()).toContain('slug: anything')
     })
 
-    // After the instant scope exits, the param value streams in normally
-    const paramValue = page.locator('[data-testid="ungenerated-param-value"]')
-    await paramValue.waitFor({ state: 'visible' })
-    expect(await paramValue.textContent()).toContain('slug: anything')
+    itSkipDeploy('during page load', async () => {
+      const page = await openPage(next, '/')
+
+      await instant(page, async () => {
+        await page.click('#plain-link-to-ungenerated-params')
+
+        // Static page title is visible
+        const title = page.locator('[data-testid="ungenerated-params-title"]')
+        await title.waitFor({ state: 'visible' })
+
+        // Suspense fallback is visible
+        const fallback = page.locator(
+          '[data-testid="ungenerated-params-fallback"]'
+        )
+        await fallback.waitFor({ state: 'visible' })
+
+        // The resolved param value must not be present in the shell
+        const paramValue = page.locator(
+          '[data-testid="ungenerated-param-value"]'
+        )
+        expect(await paramValue.count()).toBe(0)
+      })
+
+      // After exiting instant scope, the param value streams in
+      const paramValue = page.locator('[data-testid="ungenerated-param-value"]')
+      await paramValue.waitFor({ state: 'visible', timeout: 10000 })
+      expect(await paramValue.textContent()).toContain('slug: anything')
+    })
+
+    // A hover/intent prefetch must not cache resolved runtime data that then
+    // leaks into the shell once the instant lock is acquired.
+    it('does not leak runtime data from a hover prefetch', async () => {
+      const page = await openPage(next, '/')
+
+      // Hover over the link to trigger an intent prefetch, then wait for it.
+      await page.hover('#link-to-ungenerated-params')
+      await page.waitForTimeout(3000)
+
+      await instant(page, async () => {
+        await page.click('#link-to-ungenerated-params')
+
+        // Static page title is visible
+        const title = page.locator('[data-testid="ungenerated-params-title"]')
+        await title.waitFor({ state: 'visible' })
+
+        // Suspense fallback is visible
+        const fallback = page.locator(
+          '[data-testid="ungenerated-params-fallback"]'
+        )
+        await fallback.waitFor({ state: 'visible' })
+
+        // Param value is NOT in the shell, even though a hover prefetch ran
+        // before the instant lock was acquired
+        const paramValue = page.locator(
+          '[data-testid="ungenerated-param-value"]'
+        )
+        expect(await paramValue.count()).toBe(0)
+      })
+
+      // After exiting instant scope, the param value streams in
+      const paramValue = page.locator('[data-testid="ungenerated-param-value"]')
+      await paramValue.waitFor({ state: 'visible' })
+      expect(await paramValue.textContent()).toContain('slug: anything')
+    })
   })
 
   it('does include dynamic route params in the instant shell when runtime prefetching is enabled', async () => {
@@ -753,44 +850,8 @@ describe('instant-navigation-testing-api', () => {
     ).toContain('slug: anything')
   })
 
-  // In dev mode, hover/intent-based prefetches should not send requests
-  // that produce stale segment data. If a hover prefetch caches the route
-  // with resolved runtime data before the instant lock is acquired, params
-  // will leak into the shell when instant mode is later enabled.
-  it('does not leak runtime data from hover prefetch into instant shell', async () => {
-    const page = await openPage(next, '/')
-
-    // Hover over the dynamic params link to trigger an intent prefetch
-    await page.hover('#link-to-dynamic-params')
-
-    // Wait for the prefetch to complete
-    await page.waitForTimeout(3000)
-
-    // Now enable instant mode and navigate
-    await instant(page, async () => {
-      await page.click('#link-to-dynamic-params')
-
-      // Static page title is visible
-      const title = page.locator('[data-testid="dynamic-params-title"]')
-      await title.waitFor({ state: 'visible' })
-
-      // Suspense fallback is visible
-      const fallback = page.locator('[data-testid="params-fallback"]')
-      await fallback.waitFor({ state: 'visible' })
-
-      // Param value is NOT in the shell — even though a hover prefetch
-      // ran before the instant lock was acquired
-      const paramValue = page.locator('[data-testid="param-value"]')
-      expect(await paramValue.count()).toBe(0)
-    })
-
-    // After exiting instant scope, param value streams in
-    const paramValue = page.locator('[data-testid="param-value"]')
-    await paramValue.waitFor({ state: 'visible' })
-    expect(await paramValue.textContent()).toContain('slug: unknown')
-  })
-
-  it('subsequent navigations after instant scope are not locked', async () => {
+  // prettier-ignore
+  itSkipDeploy('subsequent navigations after instant scope are not locked', async () => {
     const page = await openPage(next, '/')
 
     // First, do an MPA navigation within an instant scope
@@ -920,7 +981,7 @@ describe('instant-navigation-testing-api', () => {
     }
   })
 
-  it('clears cookie after instant scope exits', async () => {
+  itSkipDeploy('clears cookie after instant scope exits', async () => {
     const page = await openPage(next, '/')
 
     await instant(page, async () => {
@@ -962,7 +1023,8 @@ describe('instant-navigation-testing-api', () => {
     expect(await fetchedData.textContent()).toContain('api response')
   })
 
-  it('blocks out-of-band client fetch during instant scope (MPA)', async () => {
+  // prettier-ignore
+  itSkipDeploy('blocks out-of-band client fetch during instant scope (MPA)', async () => {
     const page = await openPage(next, '/')
 
     await instant(page, async () => {
@@ -1010,14 +1072,22 @@ describe('instant-navigation-testing-api', () => {
   // would be a blank document with no DevTools — leaving the user unable to
   // release the instant navigation lock. Instead the server clears the instant
   // cookie (so the next reload renders normally) and surfaces an error page.
-  it('clears the instant cookie and serves an error when the static shell is empty', async () => {
+  //
+  // TODO: This is skipped on deploy. There, the empty prelude is served
+  // straight from the platform cache before this code runs, so the Set-Cookie
+  // that clears the instant cookie never takes effect and the user stays on a
+  // blank shell. A follow-up serves a client-side cookie-clearing recovery
+  // document so the next reload renders the route normally on deploy too.
+  // prettier-ignore
+  itSkipDeploy('clears the instant cookie and serves an error when the static shell is empty', async () => {
     const res = await next.fetch('/root-blocking-page', {
       headers: { cookie: 'next-instant-navigation-testing=[0]' },
     })
 
-    // An error response is served instead of a blank document. (The exact body
-    // differs by mode — a dev error overlay vs. a minimal production error —
-    // but the 500 status is what distinguishes it from the empty 200 shell.)
+    // An error response is served instead of a blank document. (The exact
+    // body differs by mode — a dev error overlay vs. a minimal production
+    // error — but the 500 status is what distinguishes it from the empty 200
+    // shell.)
     expect(res.status).toBe(500)
 
     // The instant cookie is cleared so the next reload renders normally.
@@ -1035,10 +1105,9 @@ describe('instant-navigation-testing-api', () => {
 describe('instant-navigation-testing-api - root params', () => {
   const { next } = nextTestSetup({
     files: join(__dirname, 'fixtures', 'root-params'),
-    skipDeployment: true,
   })
 
-  it('includes root param in instant shell', async () => {
+  itSkipDeploy('includes root param in instant shell', async () => {
     const page = await openPage(next, '/en')
 
     const langValue = page.locator('[data-testid="lang-value"]')
@@ -1058,7 +1127,6 @@ describe('instant-navigation-testing-api - root params', () => {
 describe('instant-navigation-testing-api - partial prefetching (App Shells)', () => {
   const { next } = nextTestSetup({
     files: join(__dirname, 'fixtures', 'partial-prefetch'),
-    skipDeployment: true,
     // Skew protection (deployment-id asset versioning) is orthogonal to the
     // shell-restriction behavior under test. Disable it so the suite exercises
     // only the navigation-lock behavior.
