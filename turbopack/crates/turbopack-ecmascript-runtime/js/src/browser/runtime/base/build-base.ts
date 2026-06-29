@@ -1,6 +1,9 @@
 /// <reference path="./runtime-base.ts" />
 /// <reference path="./dummy.ts" />
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+var TURBOPACK_DEV = false
+
 const moduleCache: ModuleCache<Module> = {}
 contextPrototype.c = moduleCache
 

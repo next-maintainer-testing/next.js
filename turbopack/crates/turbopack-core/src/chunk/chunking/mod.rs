@@ -361,6 +361,7 @@ pub async fn make_chunks(
                     make_chunk(
                         chunk_items,
                         Vec::new(),
+                        Vec::new(),
                         &mut format!("{key_prefix}{ty_name}"),
                         &mut split_context,
                     )
@@ -401,30 +402,56 @@ struct SplitContext<'a> {
     chunks: &'a mut Vec<Vc<Box<dyn Chunk>>>,
 }
 
+fn build_chunk(
+    chunk_items: Vec<&'_ ChunkItemOrBatchWithInfo>,
+    batch_groups: Vec<ResolvedVc<ChunkItemBatchGroup>>,
+    partial_chunks: Vec<ResolvedVc<Box<dyn Chunk>>>,
+    split_context: &SplitContext<'_>,
+) -> Vc<Box<dyn Chunk>> {
+    split_context.ty.chunk(
+        *split_context.chunking_context,
+        chunk_items
+            .into_iter()
+            .map(|item| match item {
+                ChunkItemOrBatchWithInfo::ChunkItem { chunk_item, .. } => {
+                    ChunkItemOrBatchWithAsyncModuleInfo::ChunkItem(*chunk_item)
+                }
+                &ChunkItemOrBatchWithInfo::Batch { batch, .. } => {
+                    ChunkItemOrBatchWithAsyncModuleInfo::Batch(batch)
+                }
+            })
+            .collect(),
+        ResolvedVc::deref_vec(batch_groups),
+        ResolvedVc::deref_vec(partial_chunks),
+    )
+}
+
 /// Creates a chunk with the given `chunk_items. `key` should be unique.
 #[tracing::instrument(level = Level::TRACE, skip_all, fields(key = display(key)))]
 async fn make_chunk(
     chunk_items: Vec<&'_ ChunkItemOrBatchWithInfo>,
     batch_groups: Vec<ResolvedVc<ChunkItemBatchGroup>>,
+    partials: Vec<(
+        Vec<&'_ ChunkItemOrBatchWithInfo>,
+        Vec<ResolvedVc<ChunkItemBatchGroup>>,
+    )>,
     key: &mut String,
     split_context: &mut SplitContext<'_>,
 ) -> Result<()> {
-    split_context.chunks.push(
-        split_context.ty.chunk(
-            *split_context.chunking_context,
-            chunk_items
-                .into_iter()
-                .map(|item| match item {
-                    ChunkItemOrBatchWithInfo::ChunkItem { chunk_item, .. } => {
-                        ChunkItemOrBatchWithAsyncModuleInfo::ChunkItem(*chunk_item)
-                    }
-                    &ChunkItemOrBatchWithInfo::Batch { batch, .. } => {
-                        ChunkItemOrBatchWithAsyncModuleInfo::Batch(batch)
-                    }
-                })
-                .collect(),
-            ResolvedVc::deref_vec(batch_groups),
-        ),
-    );
+    let mut partial_chunks = Vec::with_capacity(partials.len());
+    for (partial_items, partial_batch_groups) in partials {
+        partial_chunks.push(
+            build_chunk(
+                partial_items,
+                partial_batch_groups,
+                Vec::new(),
+                split_context,
+            )
+            .to_resolved()
+            .await?,
+        );
+    }
+    let chunk = build_chunk(chunk_items, batch_groups, partial_chunks, split_context);
+    split_context.chunks.push(chunk);
     Ok(())
 }

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use turbo_rcstr::{RcStr, rcstr};
 use turbo_tasks::{FxIndexSet, ResolvedVc, ValueToString, Vc};
 use turbo_tasks_fs::{FileContent, FileSystemPath};
@@ -51,6 +51,21 @@ impl EcmascriptBrowserChunk {
 }
 
 impl EcmascriptBrowserChunk {
+    async fn partial_chunk_assets(&self) -> Result<Vec<ResolvedVc<Box<dyn OutputAsset>>>> {
+        let partial_chunks = self.chunk.partial_chunks().await?;
+        let mut assets = Vec::with_capacity(partial_chunks.len());
+        for &partial in partial_chunks.iter() {
+            let partial_chunk = ResolvedVc::try_downcast_type::<EcmascriptChunk>(partial)
+                .context("merged chunk partial_chunks must be ecmascript chunks")?;
+            assets.push(ResolvedVc::upcast(
+                EcmascriptBrowserChunk::new(*self.chunking_context, *partial_chunk)
+                    .to_resolved()
+                    .await?,
+            ));
+        }
+        Ok(assets)
+    }
+
     async fn ident_for_path(&self) -> Result<Vc<AssetIdent>> {
         Ok(self
             .chunk
@@ -66,8 +81,15 @@ impl EcmascriptBrowserChunk {
 impl OutputChunk for EcmascriptBrowserChunk {
     #[turbo_tasks::function]
     async fn runtime_info(&self) -> Result<Vc<OutputChunkRuntimeInfo>> {
+        let partial_assets = self.partial_chunk_assets().await?;
+        let module_chunks = if partial_assets.is_empty() {
+            None
+        } else {
+            Some(ResolvedVc::cell(partial_assets))
+        };
         Ok(OutputChunkRuntimeInfo {
             included_ids: Some(self.chunk.entry_ids().to_resolved().await?),
+            module_chunks,
             ..Default::default()
         }
         .cell())
@@ -113,9 +135,26 @@ impl OutputAssetsReference for EcmascriptBrowserChunk {
             assets.push(ResolvedVc::upcast(self.source_map().to_resolved().await?));
         }
 
+        // Constituent partial chunks of a merged chunk are emitted as referenced assets
+        // so the runtime can fetch an individual partial when it's already cached, without
+        // them being eagerly loaded as primary chunks.
+        let partial_assets = this.partial_chunk_assets().await?;
+        let referenced_assets = if partial_assets.is_empty() {
+            chunk_references.referenced_assets
+        } else {
+            let mut referenced: Vec<_> = chunk_references
+                .referenced_assets
+                .await?
+                .iter()
+                .copied()
+                .collect();
+            referenced.extend(partial_assets);
+            ResolvedVc::cell(referenced)
+        };
+
         Ok(OutputAssetsWithReferenced {
             assets: ResolvedVc::cell(assets),
-            referenced_assets: chunk_references.referenced_assets,
+            referenced_assets,
             references: chunk_references.references,
         }
         .cell())

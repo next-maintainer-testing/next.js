@@ -16,6 +16,8 @@ const devContextPrototype = Context.prototype as TurbopackDevContext
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+var TURBOPACK_DEV = true
+
 // Assign browser's module cache and runtime modules to shared HMR state
 devModuleCache = Object.create(null)
 devContextPrototype.c = devModuleCache

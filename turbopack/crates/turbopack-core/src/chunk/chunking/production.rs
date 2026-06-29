@@ -131,6 +131,8 @@ pub async fn make_production_chunks(
             first_page_load_priority,
             priority_boost_percent,
             request_cost,
+            generate_partial_chunks,
+            min_partial_chunk_size,
             ..
         } = chunking_config;
 
@@ -140,6 +142,7 @@ pub async fn make_production_chunks(
                 make_chunk(
                     group.chunk_items,
                     group.batch_group.into_iter().collect(),
+                    Vec::new(),
                     &mut String::new(),
                     &mut split_context,
                 )
@@ -162,6 +165,11 @@ pub async fn make_production_chunks(
                             .sum::<usize>();
                         ChunkCandidate {
                             size,
+                            partials: vec![ChunkPartial {
+                                size,
+                                chunk_items: chunk_items.clone(),
+                                batch_groups: batch_group.clone().into_iter().collect(),
+                            }],
                             chunk_items,
                             batch_groups: batch_group.into_iter().collect(),
                             chunk_groups: key.map(Cow::Borrowed),
@@ -199,6 +207,7 @@ pub async fn make_production_chunks(
                                 chunk_items,
                                 batch_groups,
                                 chunk_groups,
+                                partials,
                             } = heap.pop().unwrap();
                             chunks_to_merge_size += size;
                             chunks_to_merge.push(MergeCandidate {
@@ -206,6 +215,7 @@ pub async fn make_production_chunks(
                                 chunk_items,
                                 batch_groups,
                                 chunk_groups,
+                                partials,
                             });
                             continue;
                         }
@@ -522,7 +532,9 @@ pub async fn make_production_chunks(
                             chunk_items,
                             mut batch_groups,
                             chunk_groups,
+                            partials: other_partials,
                         } = other;
+                        candidate.partials.extend(other_partials);
                         candidate.size += size;
                         candidate.chunk_items.extend(chunk_items);
                         if batch_groups.len() + candidate.batch_groups.len() > 16 {
@@ -559,6 +571,7 @@ pub async fn make_production_chunks(
                                 chunk_items: unused.chunk_items,
                                 batch_groups: unused.batch_groups,
                                 chunk_groups: unused.chunk_groups,
+                                partials: unused.partials,
                             });
                         } else {
                             chunks_to_merge.push(unused);
@@ -579,6 +592,7 @@ pub async fn make_production_chunks(
                     chunk_items,
                     batch_groups,
                     chunk_groups,
+                    partials,
                 } in chunks_to_merge.into_iter()
                 {
                     if size > merge_threshold {
@@ -587,6 +601,7 @@ pub async fn make_production_chunks(
                             chunk_items,
                             batch_groups,
                             chunk_groups,
+                            partials,
                         });
                     } else {
                         remained_size += size;
@@ -603,6 +618,8 @@ pub async fn make_production_chunks(
                         chunk_items: remained_chunk_items,
                         batch_groups: remained_batch_groups.into_iter().collect(),
                         chunk_groups: None,
+                        // The remained chunk holds unsharable left-overs; no split benefit.
+                        partials: Vec::new(),
                     });
                 }
             }
@@ -614,13 +631,21 @@ pub async fn make_production_chunks(
                 chunk_items,
                 batch_groups,
                 size,
+                partials,
                 ..
             } in heap.into_iter()
             {
                 total_size += size;
+                // Merged chunks also emit their constituent partials as referenced "module chunks"
+                // for cache-aware loading; a plain chunk passes no partials.
+                let partials = generate_partial_chunks
+                    .then(|| split_into_partial_chunks(partials, min_partial_chunk_size))
+                    .flatten()
+                    .unwrap_or_default();
                 make_chunk(
                     chunk_items,
                     batch_groups.into_vec(),
+                    partials,
                     &mut String::new(),
                     &mut split_context,
                 )
@@ -635,11 +660,22 @@ pub async fn make_production_chunks(
     .await
 }
 
+/// One original (pre-merge) atomic chunk group. A [`ChunkCandidate`]/[`MergeCandidate`] tracks the
+/// partials it was merged from so the emitted merged chunk can also expose them as individual
+/// "module chunks" for cache-aware loading at runtime.
+struct ChunkPartial<'l> {
+    size: usize,
+    chunk_items: Vec<&'l ChunkItemOrBatchWithInfo>,
+    batch_groups: SmallVec<[ResolvedVc<ChunkItemBatchGroup>; 1]>,
+}
+
 struct ChunkCandidate<'l> {
     size: usize,
     chunk_items: Vec<&'l ChunkItemOrBatchWithInfo>,
     batch_groups: SmallVec<[ResolvedVc<ChunkItemBatchGroup>; 1]>,
     chunk_groups: Option<Cow<'l, RoaringBitmapWrapper>>,
+    /// Original groups this candidate covers; one per chunk, > 1 once merged.
+    partials: Vec<ChunkPartial<'l>>,
 }
 
 impl Ord for ChunkCandidate<'_> {
@@ -667,6 +703,8 @@ struct MergeCandidate<'l> {
     chunk_items: Vec<&'l ChunkItemOrBatchWithInfo>,
     batch_groups: SmallVec<[ResolvedVc<ChunkItemBatchGroup>; 1]>,
     chunk_groups: Option<Cow<'l, RoaringBitmapWrapper>>,
+    /// Original groups this candidate covers; one per chunk, > 1 once merged.
+    partials: Vec<ChunkPartial<'l>>,
 }
 
 impl MergeCandidate<'_> {
@@ -696,6 +734,49 @@ impl Eq for MergeCandidate<'_> {}
 impl PartialEq for MergeCandidate<'_> {
     fn eq(&self, other: &Self) -> bool {
         self.size == other.size
+    }
+}
+
+fn split_into_partial_chunks<'l>(
+    partials: Vec<ChunkPartial<'l>>,
+    min_partial_chunk_size: usize,
+) -> Option<
+    Vec<(
+        Vec<&'l ChunkItemOrBatchWithInfo>,
+        Vec<ResolvedVc<ChunkItemBatchGroup>>,
+    )>,
+> {
+    // A single original part can't benefit from splitting.
+    if partials.len() <= 1 {
+        return None;
+    }
+    let mut partial_chunks: Vec<(
+        Vec<&'l ChunkItemOrBatchWithInfo>,
+        Vec<ResolvedVc<ChunkItemBatchGroup>>,
+    )> = Vec::new();
+    let mut remainder_items: Vec<&'l ChunkItemOrBatchWithInfo> = Vec::new();
+    let mut remainder_batch_groups = FxIndexSet::default();
+    for part in partials {
+        if part.size >= min_partial_chunk_size {
+            partial_chunks.push((part.chunk_items, part.batch_groups.into_vec()));
+        } else {
+            // we create a "remainder" chunk with smaller partial chunks so that
+            // an entire chunk can be loaded by loading all of its partial chunks
+            remainder_items.extend(part.chunk_items);
+            remainder_batch_groups.extend(part.batch_groups);
+        }
+    }
+    if !remainder_items.is_empty() {
+        partial_chunks.push((
+            remainder_items,
+            remainder_batch_groups.into_iter().collect(),
+        ));
+    }
+    // A split is only worthwhile if it yields more than one partial chunk.
+    if partial_chunks.len() <= 1 {
+        None
+    } else {
+        Some(partial_chunks)
     }
 }
 

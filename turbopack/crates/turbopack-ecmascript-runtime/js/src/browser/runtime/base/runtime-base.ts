@@ -22,6 +22,7 @@ declare var TURBOPACK_NEXT_CHUNK_URLS: ChunkUrl[] | undefined
 declare var CHUNK_BASE_PATH: string
 declare var ASSET_SUFFIX: string
 declare var CROSS_ORIGIN: 'anonymous' | 'use-credentials' | null
+declare var TURBOPACK_DEV: boolean
 declare var CHUNK_LOAD_RETRY_MAX_ATTEMPTS: number
 declare var CHUNK_LOAD_RETRY_BASE_DELAY_MS: number
 declare var CHUNK_LOAD_RETRY_MAX_JITTER_MS: number
@@ -153,12 +154,41 @@ async function loadChunkInternal(
 
     promise = Promise.all(moduleChunksPromises)
   } else {
-    promise = loadChunkPath(sourceType, sourceData, chunkData.path)
+    // For a merged chunk (one that lists more than one module chunk), probe the HTTP cache before
+    // downloading the whole merged chunk: if enough constituent partials are already cached,
+    // load the smaller partials individually instead.
+    let cachedPartials: Map<ChunkPath, number> = new Map()
+    if (
+      !TURBOPACK_DEV &&
+      sourceType === SourceType.Parent &&
+      includedModuleChunksList.length > 1 &&
+      typeof fetch === 'function'
+    ) {
+      cachedPartials = await probeCachedChunks(includedModuleChunksList)
+    }
 
-    // Mark all included module chunks as loading if they are not already loaded or loading.
-    for (const includedModuleChunk of includedModuleChunksList) {
-      if (!availableModuleChunks.has(includedModuleChunk)) {
-        availableModuleChunks.set(includedModuleChunk, promise)
+    if (
+      cachedPartials.size > 0 &&
+      shouldLoadPartials(includedModuleChunksList.length, cachedPartials)
+    ) {
+      // Worth splitting: load every partial individually so cached partials are reused.
+      const partialPromises: Array<Promise<unknown> | true> = []
+      for (const moduleChunk of includedModuleChunksList) {
+        let partialPromise = availableModuleChunks.get(moduleChunk)
+        if (!partialPromise) {
+          partialPromise = loadChunkPath(sourceType, sourceData, moduleChunk)
+          availableModuleChunks.set(moduleChunk, partialPromise)
+        }
+        partialPromises.push(partialPromise)
+      }
+      promise = Promise.all(partialPromises)
+    } else {
+      // Cold cache (or a regular, non-merged chunk): load the whole chunk in a single request.
+      promise = loadChunkPath(sourceType, sourceData, chunkData.path)
+      for (const includedModuleChunk of includedModuleChunksList) {
+        if (!availableModuleChunks.has(includedModuleChunk)) {
+          availableModuleChunks.set(includedModuleChunk, promise)
+        }
       }
     }
   }
@@ -243,6 +273,75 @@ function loadChunkPath(
 ): Promise<void> {
   const url = getChunkRelativeUrl(chunkPath)
   return loadChunkByUrlInternal(sourceType, sourceData, url)
+}
+
+/**
+ * Approximate cost of an extra HTTP request, used to decide whether splitting a merged chunk into
+ * individually-cached partials is worthwhile. This is the runtime analog of the `c_req`, however,
+ * it is expressed in compressed transfer bytes rather than pre-minified (which the chunker's # is).
+ */
+const REQUEST_COST_BYTES = 30_000
+
+/**
+ * Checks the browser HTTP cache (without hitting the network) for given chunk paths using
+ * `fetch(..., { cache: 'only-if-cached' })`, and returns a map of the cached paths to their
+ * transfer size (`Content-Length`, or `0` when the header is absent).
+ *
+ * A cache miss surfaces either as a non-`ok` response (e.g. a synthetic 504) or a thrown
+ * `TypeError` depending on the browser; both are treated as "not cached". `only-if-cached` requires
+ * `same-origin`, which chunks always are.
+ */
+async function probeCachedChunks(
+  chunkPaths: ChunkPath[]
+): Promise<Map<ChunkPath, number>> {
+  const hits: Map<ChunkPath, number> = new Map()
+  await Promise.all(
+    chunkPaths.map(async (chunkPath) => {
+      if (!isJs(chunkPath)) return
+      const url = getChunkRelativeUrl(chunkPath)
+      try {
+        const response = await fetch(url, {
+          cache: 'only-if-cached',
+          mode: 'same-origin',
+        })
+        if (response.ok) {
+          const length = Number(response.headers.get('content-length'))
+          hits.set(
+            chunkPath,
+            Number.isFinite(length) && length > 0 ? length : 0
+          )
+        }
+      } catch {
+        // Cache miss or `only-if-cached` unsupported: treat as not cached.
+      }
+    })
+  )
+  return hits
+}
+
+/**
+ * Decides whether to load a merged chunk's partials individually instead of the whole merged chunk,
+ * weighing the transfer bytes saved (the cached partials we avoid re-downloading) against the extra
+ * network requests splitting incurs.
+ *
+ * Loading partials issues one request per uncached partial vs. a single request for the merged chunk, so
+ * splitting adds `uncachedCount - 1` extra network requests. When at most one partial needs the
+ * network, splitting never costs more requests than the merged load (and transfers fewer bytes), so
+ * it always wins. Otherwise it's only worth it when the cached bytes exceed the extra request cost.
+ */
+function shouldLoadPartials(
+  totalPartials: number,
+  cachedPartials: Map<ChunkPath, number>
+): boolean {
+  const uncachedCount = totalPartials - cachedPartials.size
+  if (uncachedCount <= 1) {
+    return true
+  }
+  let cachedBytes = 0
+  for (const size of cachedPartials.values()) {
+    cachedBytes += size
+  }
+  return cachedBytes > REQUEST_COST_BYTES * (uncachedCount - 1)
 }
 
 /**
