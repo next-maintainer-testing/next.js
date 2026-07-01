@@ -522,7 +522,7 @@ export function getResolveRoutes(
                 config.deploymentId
               ) {
                 let isImmutableFile =
-                  config.experimental.supportsImmutableAssets &&
+                  config.supportsImmutableAssets &&
                   clientHashes![`static${decodeURI(output.itemPath)}`]
                 const expectedToken = isImmutableFile
                   ? undefined
