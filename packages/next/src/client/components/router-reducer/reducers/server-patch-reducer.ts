@@ -69,6 +69,9 @@ export function serverPatchReducer(
     // Server patch (retry) navigations don't use route prediction. This is
     // typically a retry after a previous mismatch, so the route was already
     // marked as having a dynamic rewrite when the mismatch was detected.
+    null,
+    // A retry reuses the original transition's commit; it is not separately
+    // tracked (its tree is not buffered, so it cannot double-commit).
     null
   )
 }

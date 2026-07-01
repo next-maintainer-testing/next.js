@@ -18,6 +18,7 @@ import {
   convertServerPatchToFullTree,
 } from '../../segment-cache/navigation'
 import { UnknownDynamicStaleTime } from '../../segment-cache/bfcache'
+import { bufferRouterTransition } from '../../router-transition'
 
 export function restoreReducer(
   state: ReadonlyReducerState,
@@ -47,11 +48,15 @@ export function restoreReducer(
   const navigationLock = getCurrentNavigationLock()
 
   const now = Date.now()
+  // The id (when present) was minted and `start` emitted by the dispatcher;
+  // null for the pushState/replaceState sync path, which isn't a navigation.
+  const transitionId = action.transitionId
   // TODO: Store the dynamic stale time on the top-level state so it's known
   // during restores and refreshes.
   const accumulation: NavigationRequestAccumulation = {
     separateRefreshUrls: null,
     scrollRef: null,
+    pageShellHit: false,
   }
   const restoreSeed = convertServerPatchToFullTree(
     now,
@@ -96,7 +101,7 @@ export function restoreReducer(
     'replace',
     navigationLock
   )
-  return completeTraverseNavigation(
+  const newState = completeTraverseNavigation(
     state,
     restoredUrl,
     renderedSearch,
@@ -104,4 +109,14 @@ export function restoreReducer(
     task.route,
     restoredNextUrl
   )
+  if (transitionId !== null) {
+    bufferRouterTransition(
+      transitionId,
+      newState.tree,
+      'traverse',
+      restoredUrl.href,
+      accumulation.pageShellHit ? 'hit' : 'miss'
+    )
+  }
+  return newState
 }

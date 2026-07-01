@@ -518,6 +518,8 @@ export function serverActionReducer(
           // have the route tree from the server response. If a mismatch occurs
           // during dynamic data fetch, the retry handler will traverse the
           // known route tree to mark the entry as having a dynamic rewrite.
+          null,
+          // A server action redirect is not a tracked router transition.
           null
         )
       }
@@ -534,7 +536,9 @@ export function serverActionReducer(
         nextUrl,
         freshnessPolicy,
         scrollBehavior,
-        navigateType
+        navigateType,
+        // A server action redirect is not a tracked router transition.
+        null
       )
     },
     (e: any) => {

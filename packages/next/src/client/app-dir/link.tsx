@@ -257,8 +257,7 @@ function linkClicked(
   replace?: boolean,
   scroll?: boolean,
   onNavigate?: OnNavigateEventHandler,
-  transitionTypes?: string[],
-  prefetchIntent: RouterTransitionPrefetchIntent = 'none'
+  transitionTypes?: string[]
 ): void {
   if (typeof window !== 'undefined') {
     const { nodeName } = e.currentTarget
@@ -310,8 +309,7 @@ function linkClicked(
         replace ? 'replace' : 'push',
         scroll === false ? ScrollBehavior.NoScroll : ScrollBehavior.Default,
         linkInstanceRef.current,
-        transitionTypes,
-        prefetchIntent
+        transitionTypes
       )
     })
   }
@@ -697,8 +695,7 @@ export default function LinkComponent(
         replace,
         scroll,
         onNavigate,
-        transitionTypes,
-        prefetchIntent
+        transitionTypes
       )
     },
     onMouseEnter(e) {
