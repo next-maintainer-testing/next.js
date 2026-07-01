@@ -66,6 +66,14 @@ describe('app dir - not-found - basic', () => {
       expect(await res.text()).toInclude('"noindex"')
     })
 
+    it('should return 404 status if notFound() is called in a dynamic segment with loading', async () => {
+      const res = await next.fetch('/dynamic-with-loading/missing')
+      const html = await res.text()
+
+      expect(html).toContain('dynamic-with-loading/[id] not found')
+      expect(res.status).toBe(404)
+    })
+
     it('should use the not-found page for non-matching routes', async () => {
       const browser = await next.browser('/random-content')
       expect(await browser.elementByCss('h1').text()).toContain(
