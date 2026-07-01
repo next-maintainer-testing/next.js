@@ -517,6 +517,20 @@ function saveToCacheHandler(
   const combinedSetPromise = savedCacheResult.then(async (collectedResult) => {
     const { entry: fullEntry, readRootParamNames } = collectedResult
 
+    // In production an `expire: 0` entry is expired the moment it is produced,
+    // so the wrapper regenerates it on every read instead of serving it. The
+    // entry we would write is therefore never served back, so we skip that
+    // write, which for a remote handler is a wasted round-trip and stored
+    // payload. A value is `expire: 0` either by design, as a client-only cache,
+    // or as a conditional opt-out for a result not worth persisting (e.g. an
+    // error), and in neither case is there a reason to keep it in a server-side
+    // cache handler. The dev server keeps writing it, because its minimum
+    // retention keeps the entry around long enough that a reload still hits the
+    // cache.
+    if (!process.env.__NEXT_DEV_SERVER && fullEntry.expire === 0) {
+      return
+    }
+
     // Use the combined set (union of all historically observed reads) for both
     // the specific key and the redirect entry's tags. The read path computes
     // cacheHandlerKey from this same union (knownRootParamsByFunctionId), so

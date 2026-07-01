@@ -129,6 +129,34 @@ describe('use-cache-custom-handler', () => {
         /ModernCustomCacheHandler::set \["[A-Za-z0-9_-]+","([0-9a-f]{2})+",\[{"id":"dynamic-cache"}]\]/
       )
     })
+
+    it('should not save an expire:0 cache to the handler, and regenerate it on every request', async () => {
+      const browser = await next.browser('/prerender')
+      const initialValue = await browser.elementById('expire-zero-value').text()
+      expect(initialValue).toMatch(isoDateRegExp)
+
+      // Production regenerates the value on every request, so a reload gets a
+      // fresh one precisely because nothing was cached.
+      await retry(async () => {
+        await browser.refresh()
+        const value = await browser.elementById('expire-zero-value').text()
+        expect(value).toMatch(isoDateRegExp)
+        expect(value).not.toEqual(initialValue)
+      })
+
+      const cliOutput = next.cliOutput.slice(outputIndex)
+
+      // Across the initial render and the reload the entry is read...
+      expect(cliOutput).toMatch(
+        /ModernCustomCacheHandler::get \["[A-Za-z0-9_-]+","([0-9a-f]{2})+",\[{"id":"expire-zero"}]\]/
+      )
+
+      // ...but never written, since an `expire: 0` cache is regenerated on
+      // every read in production and would never be served back.
+      expect(cliOutput).not.toMatch(
+        /ModernCustomCacheHandler::set \["[A-Za-z0-9_-]+","([0-9a-f]{2})+",\[{"id":"expire-zero"}]\]/
+      )
+    })
   }
 
   it('should dedupe nested caches across different outer cache scopes, and still propagate cache life/tags correctly', async () => {
