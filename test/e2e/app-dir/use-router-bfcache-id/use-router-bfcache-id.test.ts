@@ -56,6 +56,46 @@ describe('use-router-bfcache-id', () => {
     ).toBe('')
   })
 
+  // Regression test for https://github.com/vercel/next.js/issues/86577.
+  it('resets mount-time state derived from search params when re-entering a route via fresh push', async () => {
+    const { browser, act } = await setup('/x/1')
+
+    await act(async () => {
+      await browser
+        .elementByCss('input[data-link-accordion="/x/2?newEntry=true"]')
+        .click()
+      await browser.elementByCss('a[href="/x/2?newEntry=true"]').click()
+    })
+
+    expect(await browser.elementByCss('[data-testid="pathname"]').text()).toBe(
+      '/x/2'
+    )
+    expect(
+      await browser
+        .elementByCss('[data-testid="mount-initialized-dialog"]')
+        .getAttribute('data-open')
+    ).toBe('true')
+
+    await browser.back()
+    expect(await browser.elementByCss('[data-testid="pathname"]').text()).toBe(
+      '/x/1'
+    )
+
+    await act(async () => {
+      await browser.elementByCss('input[data-link-accordion="/x/2"]').click()
+      await browser.elementByCss('a[href="/x/2"]').click()
+    })
+
+    expect(await browser.elementByCss('[data-testid="pathname"]').text()).toBe(
+      '/x/2'
+    )
+    expect(
+      await browser
+        .elementByCss('[data-testid="mount-initialized-dialog"]')
+        .getAttribute('data-open')
+    ).toBe('false')
+  })
+
   it('preserves shared layout state across sibling leaf navigations', async () => {
     const { browser, act } = await setup('/x/1')
     await browser.elementByCss('[data-testid="layout-input"]').type('layout')

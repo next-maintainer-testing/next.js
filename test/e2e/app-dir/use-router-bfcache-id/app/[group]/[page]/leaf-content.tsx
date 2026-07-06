@@ -19,6 +19,17 @@ export function DynamicRenderCounterClient({ uuid }: { uuid: string }) {
   return <p data-testid="dynamic-render-counter">dynamic renders: {count}</p>
 }
 
+function MountInitializedDialog() {
+  const searchParams = useSearchParams()
+  const [open] = useState(() => searchParams.get('newEntry') === 'true')
+
+  return (
+    <p data-testid="mount-initialized-dialog" data-open={String(open)}>
+      {open ? 'open' : 'closed'}
+    </p>
+  )
+}
+
 export function LeafContent() {
   const router = useRouter()
   const pathname = usePathname()
@@ -34,6 +45,7 @@ export function LeafContent() {
       <form key={bfcacheId}>
         <input data-testid="leaf-input" defaultValue="" />
       </form>
+      <MountInitializedDialog key={`dialog-${bfcacheId}`} />
       <LinkAccordion href={`${pathname}?q=2`}>same page (?q=2)</LinkAccordion>
       <LinkAccordion href={`${pathname}#section`}>
         same page (#section)
