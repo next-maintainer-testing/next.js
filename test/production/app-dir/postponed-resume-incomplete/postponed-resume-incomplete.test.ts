@@ -24,7 +24,7 @@ function validResumeDataCacheTail(): string {
 // failure is logged with content-free structural diagnostics that identify
 // *how* the state was malformed, so the otherwise-opaque error is actionable in
 // production.
-describe('postponed resume - parse failure diagnostics', () => {
+describe('postponed resume - request body parsing', () => {
   const { next } = nextTestSetup({
     files: __dirname,
     // Synthesizes the minimal-mode resume path locally; does not exercise the
@@ -36,7 +36,21 @@ describe('postponed resume - parse failure diagnostics', () => {
     },
   })
 
-  async function postResume(slug: string, body: string) {
+  async function getPostponedState() {
+    const { postponed } = await next.readJSON(
+      '.next/server/app/dynamic/[slug].meta'
+    )
+
+    expect(postponed).toEqual(expect.any(String))
+    expect(postponed.length).toBeGreaterThan(0)
+    return postponed as string
+  }
+
+  async function postResume(
+    slug: string,
+    body: string | Buffer,
+    headers: Record<string, string> = {}
+  ) {
     const outputIndex = next.cliOutput.length
     const response = await next.fetch(`/dynamic/${slug}`, {
       method: 'POST',
@@ -45,11 +59,27 @@ describe('postponed resume - parse failure diagnostics', () => {
         'content-type': 'text/plain',
         'x-matched-path': MATCHED_PATH,
         'x-now-route-matches': createNowRouteMatches({ slug }).toString(),
+        ...headers,
       },
       body,
     })
     return { response, outputIndex }
   }
+
+  it('decodes a gzip-encoded postponed body before parsing', async () => {
+    const postponed = await getPostponedState()
+    const { response, outputIndex } = await postResume(
+      'a',
+      zlib.gzipSync(postponed),
+      {
+        'content-encoding': 'gzip',
+      }
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain('a')
+    expect(next.cliOutput.slice(outputIndex)).not.toContain(PARSE_ERROR)
+  })
 
   it('reports a truncated postponed string (incomplete delivery) as Z_BUF', async () => {
     // Declares a 100-char postponed string but delivers far fewer bytes, so the
