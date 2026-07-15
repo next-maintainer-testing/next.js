@@ -1,0 +1,15 @@
+{
+  "name": "next-78592-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build --turbopack"
+  },
+  "dependencies": {
+    "file-loader": "6.2.0",
+    "next": "15.4.0-canary.10",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {}
+}
