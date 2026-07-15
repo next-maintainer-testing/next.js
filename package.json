@@ -1,0 +1,14 @@
+{
+  "name": "next-88544-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sass": "1.97.2"
+  }
+}
