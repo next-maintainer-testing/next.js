@@ -1,0 +1,13 @@
+{
+  "issue": {
+    "number": 53329,
+    "repository": "vercel/next.js"
+  },
+  "versions": {
+    "next": "13.4.13-canary.6",
+    "react": "18.2.0"
+  },
+  "verify": {
+    "deterministic": true
+  }
+}
