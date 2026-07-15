@@ -1,0 +1,17 @@
+{
+  "name": "next-87737-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@opentelemetry/auto-instrumentations-node": "0.67.3",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {},
+  "packageManager": "pnpm@10.25.0"
+}
