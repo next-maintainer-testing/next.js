@@ -1,0 +1,16 @@
+{
+  "name": "next-issue-69401-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.0.0-canary.132",
+    "puppeteer": "24.37.5",
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822"
+  }
+}
