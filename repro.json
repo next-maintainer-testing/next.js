@@ -1,0 +1,13 @@
+{
+  "issue": {
+    "number": 47085,
+    "repository": "vercel/next.js"
+  },
+  "versions": {
+    "next": "13.2.4",
+    "react": "18.2.0"
+  },
+  "verify": {
+    "deterministic": true
+  }
+}
