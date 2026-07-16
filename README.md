@@ -1,0 +1,1 @@
+This minimal reproduction checks issue vercel/next.js#43810. The App Router page imports `react-dom/server` and calls `renderToStaticMarkup`; `verify.mjs` starts the development server, requests the page, and detects Next.js's reported compile-time prohibition.
