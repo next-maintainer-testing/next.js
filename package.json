@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.0.0-canary.25",
+    "playwright": "1.61.1",
+    "react": "19.0.0-rc.0",
+    "react-dom": "19.0.0-rc.0"
+  }
+}
