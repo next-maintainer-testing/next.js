@@ -1,0 +1,13 @@
+{
+  "name": "next-71934-turbopack-webpack-exclude-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbo"
+  },
+  "dependencies": {
+    "next": "15.0.1",
+    "react": "19.0.0-rc-69d4b800-20241021",
+    "react-dom": "19.0.0-rc-69d4b800-20241021"
+  }
+}

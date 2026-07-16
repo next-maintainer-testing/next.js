@@ -1,0 +1,1 @@
+This is deliberately not JavaScript. The webpackExclude magic comment should keep it out of the dynamic import context.
