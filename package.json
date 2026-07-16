@@ -1,0 +1,13 @@
+{
+  "name": "next-issue-70148-repro",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "playwright": "1.49.1"
+  }
+}
