@@ -1,0 +1,1 @@
+This unrelated root file must not be part of a server route trace.
