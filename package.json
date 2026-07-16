@@ -1,0 +1,14 @@
+{
+  "name": "next-template-nested-navigation-repro",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "postinstall": "playwright install chromium-headless-shell"
+  },
+  "dependencies": {
+    "next": "14.0.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "playwright": "1.61.1"
+  }
+}
