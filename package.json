@@ -1,0 +1,18 @@
+{
+  "name": "next-86877-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "typegen": "next typegen"
+  },
+  "dependencies": {
+    "next": "16.0.7",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "@types/react": "19.2.17",
+    "typescript": "5.9.3"
+  }
+}
