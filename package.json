@@ -1,0 +1,13 @@
+{
+  "name": "next-84342-repro",
+  "private": true,
+  "packageManager": "pnpm@8.10.2",
+  "scripts": {
+    "build": "next build --webpack"
+  },
+  "dependencies": {
+    "next": "15.6.0-canary.34",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
+}
