@@ -1,0 +1,14 @@
+{
+  "name": "next-82934-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.4.7",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "puppeteer": "24.16.0"
+  }
+}
