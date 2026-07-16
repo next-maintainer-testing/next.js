@@ -1,0 +1,13 @@
+{
+  "name": "next-86983-chunk-404-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build --webpack"
+  },
+  "dependencies": {
+    "next": "16.1.0-canary.16",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  }
+}
