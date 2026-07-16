@@ -1,0 +1,13 @@
+{
+  "name": "next-86719-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.5.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
