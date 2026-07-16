@@ -1,0 +1,13 @@
+{
+  "name": "next-79424-debugger-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "next": "15.4.0-canary.43",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
