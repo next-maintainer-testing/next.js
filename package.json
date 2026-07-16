@@ -1,0 +1,14 @@
+{
+  "name": "next-72546-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "15.0.4-canary.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
