@@ -1,0 +1,14 @@
+{
+  "name": "next-77715-instrumentation-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "@lmnr-ai/lmnr": "0.5.0",
+    "next": "15.2.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
