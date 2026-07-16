@@ -1,0 +1,12 @@
+{
+  "name": "next-84960-repro",
+  "private": true,
+  "scripts": { "build": "next build --turbopack" },
+  "dependencies": {
+    "@sentry/nextjs": "10.20.0",
+    "next": "15.5.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {}
+}

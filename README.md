@@ -1,0 +1,1 @@
+Minimal reproduction for vercel/next.js issue #84960. A global error component imports `captureException` from the reporter's `@sentry/nextjs` version. `node verify.mjs` performs a Turbopack production build and exits 0 only when generated server route traces include an unrelated repository-root marker file.
