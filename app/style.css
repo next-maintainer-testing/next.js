@@ -1,0 +1,23 @@
+@font-face {
+  font-family: 'NanumReference';
+  src: url('/NanumGothicCoding-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: white; color: black; }
+main { padding: 20px; }
+.sample {
+  width: 760px;
+  height: 120px;
+  overflow: hidden;
+  white-space: pre;
+  font-size: 13px;
+  line-height: 24px;
+  font-weight: 700;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+.reference { font-family: 'NanumReference'; }
