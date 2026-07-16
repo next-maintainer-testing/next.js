@@ -1,0 +1,12 @@
+{
+  "name": "next-issue-56016-reproduction",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "13.5.4-canary.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
