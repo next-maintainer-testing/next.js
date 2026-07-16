@@ -265,3 +265,20 @@ describe('pages-to-app-routing with a pages optional catch-all owning the root',
     }
   )
 })
+
+// Regression test for https://github.com/vercel/next.js/issues/86048.
+describe('pages-to-app-routing with i18n domain routing', () => {
+  const { next } = nextTestSetup({
+    files: join(__dirname, 'fixtures', 'i18n-domain-rewrite'),
+  })
+
+  it('should rewrite a domain-localized request to an app route', async () => {
+    const requestOptions = { headers: { host: 'nl.example.local' } }
+
+    const pages$ = await next.render$('/', undefined, requestOptions)
+    expect(pages$('#pages-router-locale').text()).toBe('nl-NL')
+
+    const app$ = await next.render$('/test', undefined, requestOptions)
+    expect(app$('#app-router-locale').text()).toBe('nl-NL')
+  })
+})
