@@ -1,0 +1,1 @@
+Minimal reproduction for vercel/next.js#86130. With a nonzero dynamic stale time and pages inside a route group, navigating home → page 0 → home → page 1 issues two RSC requests for page 1. `node verify.mjs` exits 0 when that duplicate request occurs and 1 when exactly one request occurs.
