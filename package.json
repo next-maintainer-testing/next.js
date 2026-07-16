@@ -1,0 +1,16 @@
+{
+  "name": "next-css-import-layer-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "13.5.3-canary.0",
+    "playwright-core": "1.61.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

@@ -1,0 +1,7 @@
+@import './theme.css' layer(theme);
+
+html,
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
