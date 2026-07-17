@@ -1,0 +1,15 @@
+{
+  "name": "next-76957-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "143.0.4",
+    "next": "15.2.1",
+    "playwright-core": "1.57.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
