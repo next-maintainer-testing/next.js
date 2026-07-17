@@ -1,0 +1,15 @@
+{
+  "name": "next-85237-crypto-polyfill-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "141.0.0",
+    "next": "16.0.0",
+    "puppeteer-core": "24.29.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
