@@ -1,0 +1,1 @@
+Minimal reproduction for vercel/next.js#81980. The app uses separate root layouts for a language selector and localized static-export routes, plus explicit `/404` and `/500` routes. Run `node verify.mjs`; exit 0 means the reported static-export build failure occurred.
