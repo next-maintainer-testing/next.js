@@ -1,0 +1,15 @@
+{
+  "name": "next-84385-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "140.0.0",
+    "next": "15.5.4",
+    "puppeteer-core": "24.22.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
