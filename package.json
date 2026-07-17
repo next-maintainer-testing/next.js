@@ -1,0 +1,15 @@
+{
+  "name": "next-77847-parallel-route-header",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "133.0.0",
+    "next": "15.2.3",
+    "puppeteer-core": "24.6.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
