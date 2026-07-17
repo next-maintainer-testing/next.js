@@ -1,0 +1,14 @@
+{
+  "name": "next-82723-zod-turbopack-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build --turbo"
+  },
+  "dependencies": {
+    "next": "15.4.6",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "4.0.2"
+  }
+}
