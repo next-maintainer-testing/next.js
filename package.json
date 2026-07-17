@@ -1,0 +1,17 @@
+{
+  "name": "next-82729-favicon-hmr-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "postinstall": "puppeteer browsers install chrome"
+  },
+  "dependencies": {
+    "next": "15.3.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "puppeteer": "24.16.0"
+  }
+}
