@@ -1,0 +1,21 @@
+{
+  "name": "next-dev-eslint-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "lint:file": "eslint app/page.js"
+  },
+  "dependencies": {
+    "next": "14.0.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "8.56.0",
+    "eslint-config-next": "14.0.4",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.1.2",
+    "prettier": "3.1.1"
+  }
+}
