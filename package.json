@@ -1,0 +1,16 @@
+{
+  "name": "next-image-fractional-height-warning-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "127.0.0",
+    "next": "14.1.0",
+    "puppeteer-core": "22.15.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
