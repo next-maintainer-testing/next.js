@@ -1,0 +1,15 @@
+{
+  "name": "next-iframe-onload-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "141.0.0",
+    "next": "14.2.8",
+    "puppeteer-core": "24.28.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
