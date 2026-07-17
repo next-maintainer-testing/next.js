@@ -1,0 +1,17 @@
+{
+  "name": "next-issue-47047-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "13.2.5-canary.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "8.35.0",
+    "eslint-config-next": "13.2.4"
+  }
+}
