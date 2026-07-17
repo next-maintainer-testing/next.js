@@ -1,0 +1,19 @@
+{
+  "name": "next-58472-third-parties-types-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "14.0.3-canary.8",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.10.0",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "typescript": "5.1.3"
+  }
+}
