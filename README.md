@@ -1,0 +1,1 @@
+This is a minimal reproduction for vercel/next.js issue #72903 (a duplicate of #61046). It dynamically imports a named export from a Client Component in an App Router page and includes the reported root `not-found.js`. `node verify.mjs` starts the development server and exits 0 only when the reported React Client Manifest runtime error is observed.
