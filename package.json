@@ -1,0 +1,11 @@
+{
+  "name": "next-issue-76317-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "dev": "next dev" },
+  "dependencies": {
+    "next": "15.2.0-canary.67",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
