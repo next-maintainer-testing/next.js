@@ -1,0 +1,19 @@
+{
+  "name": "next-83760-storybook-postcss-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build-storybook": "storybook build --output-dir storybook-static"
+  },
+  "dependencies": {
+    "next": "15.5.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@storybook/nextjs-vite": "9.1.5",
+    "@tailwindcss/postcss": "4.1.13",
+    "storybook": "9.1.5",
+    "tailwindcss": "4.1.13"
+  }
+}
