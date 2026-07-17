@@ -211,6 +211,26 @@ describe('pages-to-app-routing with cross-router shadowing under basePath', () =
   })
 })
 
+// Regression test for https://github.com/vercel/next.js/issues/80852.
+describe('pages router navigation under basePath with app routes', () => {
+  const { next } = nextTestSetup({
+    files: join(__dirname, 'fixtures', 'basepath-router-push'),
+  })
+
+  it('should not add the basePath twice when router.push triggers a hard navigation', async () => {
+    const browser = await next.browser('/app')
+
+    await browser.elementByCss('#navigate').click()
+
+    await retry(async () => {
+      expect(await browser.eval('window.location.pathname')).toBe(
+        '/app/cars/11841'
+      )
+    })
+    expect(await browser.elementByCss('#car-page').text()).toBe('Car 11841')
+  })
+})
+
 // A pages optional catch-all (`[[...slug]]`) owns `/` by absorbing zero
 // segments, but a root-level dynamic app route (`app/[lang]`) does not own `/`
 // (it requires one segment). Navigating to `/` from a Pages Router page must
