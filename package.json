@@ -1,0 +1,14 @@
+{
+  "name": "next-25202-router-aspath-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "10.0.9",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  }
+}
