@@ -1,0 +1,14 @@
+{
+  "name": "next-78591-duckdb-wasm-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build --turbopack"
+  },
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "1.29.0",
+    "next": "15.4.0-canary.10",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
