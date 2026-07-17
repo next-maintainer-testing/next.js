@@ -1,0 +1,11 @@
+{
+  "name": "next-85071-registry-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "dev": "next dev --turbopack" },
+  "dependencies": {
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
