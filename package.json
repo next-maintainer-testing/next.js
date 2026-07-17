@@ -1,0 +1,15 @@
+{
+  "name": "next-81374-focus-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "postinstall": "node install-browser.mjs"
+  },
+  "dependencies": {
+    "next": "15.2.0",
+    "puppeteer": "24.31.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
