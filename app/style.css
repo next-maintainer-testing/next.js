@@ -1,0 +1,16 @@
+:root {
+  --rdg-header-background-color: light-dark(
+    hsl(0deg 0% 97.5%),
+    hsl(0deg 0% 10.5%)
+  );
+}
+
+body {
+  background: white;
+}
+
+[role='row'] {
+  background-color: var(--rdg-header-background-color);
+  width: 160px;
+  height: 48px;
+}

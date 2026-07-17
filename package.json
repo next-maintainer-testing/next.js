@@ -1,0 +1,14 @@
+{
+  "name": "next-82559-light-dark-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.4.6",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
+}
