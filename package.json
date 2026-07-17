@@ -1,0 +1,13 @@
+{
+  "name": "next-81111-babel-runtime-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.3.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
