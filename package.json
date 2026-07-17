@@ -1,0 +1,15 @@
+{
+  "name": "next-image-fractional-dimensions-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "149.0.0",
+    "next": "13.2.5-canary.8",
+    "puppeteer-core": "25.3.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
