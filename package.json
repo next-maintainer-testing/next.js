@@ -1,0 +1,15 @@
+{
+  "name": "next-82775-staletimes-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "15.4.7",
+    "playwright-core": "1.61.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
+}
