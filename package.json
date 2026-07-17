@@ -1,0 +1,20 @@
+{
+  "name": "next-82170-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "next": "15.4.2-canary.19",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "browserslist": [
+    "chrome 64",
+    "edge 79",
+    "firefox 67",
+    "opera 51",
+    "safari 12"
+  ]
+}
