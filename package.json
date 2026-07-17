@@ -1,0 +1,13 @@
+{
+  "name": "next-issue-77637-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.3.0-canary.26",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
