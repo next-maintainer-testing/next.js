@@ -1,0 +1,17 @@
+{
+  "name": "next-link-current-page-focus-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "next": "15.0.4-canary.49",
+    "puppeteer-core": "23.11.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
