@@ -1,0 +1,9 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; font-family: sans-serif; }
+header { position: sticky; top: 0; height: 64px; padding: 22px 32px; background: #171717; color: white; z-index: 1; }
+main { padding: 32px; }
+.hero { height: 430px; display: grid; place-items: center; background: #facc15; font-size: 32px; }
+.hero.page2 { background: #3b82f6; }
+.content { padding: 64px 48px; }
+.spacer { height: 100vh; }
+a { display: block; }
