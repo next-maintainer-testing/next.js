@@ -1,0 +1,14 @@
+{
+  "name": "issue-81124-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.4.0-canary.104",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
