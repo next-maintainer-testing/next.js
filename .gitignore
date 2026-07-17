@@ -1,0 +1,4 @@
+node_modules
+.next
+.item-exists
+npm-debug.log*

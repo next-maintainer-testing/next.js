@@ -1,0 +1,1 @@
+This minimal app reproduces vercel/next.js#83382. It adds an item, opens its detail route, then deletes it in a Server Function that calls `revalidatePath('/')` before a Client Component calls `router.push('/')`. The verifier detects whether the deleted detail Server Component executes again before navigation completes.
