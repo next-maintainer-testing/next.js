@@ -1,0 +1,14 @@
+{
+  "name": "next-77412-nested-cache-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "15.3.0-canary.18",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
