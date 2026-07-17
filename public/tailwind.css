@@ -1,0 +1,3 @@
+/* Tailwind output stand-in: this visible rule must reach the browser as CSS. */
+html { background: rgb(12, 34, 56); }
+body { color: rgb(240, 240, 240); }
