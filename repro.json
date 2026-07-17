@@ -1,0 +1,12 @@
+{
+  "issue": { "number": 69265, "repository": "vercel/next.js" },
+  "versions": {
+    "next": "15.0.0-canary.128",
+    "react": "19.0.0-rc-eb3ad065-20240822"
+  },
+  "verify": {
+    "command": "node verify.mjs",
+    "deterministic": false,
+    "timeoutSeconds": 300
+  }
+}

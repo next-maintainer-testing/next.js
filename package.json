@@ -1,0 +1,16 @@
+{
+  "name": "next-server-action-parallel-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.0.0-canary.128",
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822"
+  },
+  "devDependencies": {
+    "puppeteer": "25.3.0"
+  }
+}
