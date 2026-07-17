@@ -1,0 +1,13 @@
+{
+  "name": "next-82650-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "next": "15.4.2-canary.46",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
