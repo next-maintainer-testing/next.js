@@ -1,0 +1,16 @@
+{
+  "name": "issue-84159-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@types/node": "22.15.0",
+    "@types/react": "19.1.12",
+    "next": "15.5.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "typescript": "5.9.2"
+  }
+}
