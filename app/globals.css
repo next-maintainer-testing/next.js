@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: sans-serif; }
+#layout-header {
+  height: 240px;
+  padding: 32px;
+  color: white;
+  background: #245;
+}
+main {
+  min-height: 100vh;
+  padding: 32px;
+  background: white;
+}
+#home-page { padding-top: 1000px; }
+#hoge-page { min-height: 1800px; }
+a { display: inline-block; padding: 12px; font-size: 20px; }
