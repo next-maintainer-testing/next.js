@@ -1,0 +1,17 @@
+{
+  "name": "next-78113-repro",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "@repro/pkg-using-date-fns": "file:packages/pkg-using-date-fns",
+    "next": "15.3.1-canary.7",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}

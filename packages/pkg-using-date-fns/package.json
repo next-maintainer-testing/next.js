@@ -1,0 +1,10 @@
+{
+  "name": "@repro/pkg-using-date-fns",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "date-fns": "4.1.0"
+  }
+}
