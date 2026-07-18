@@ -1,0 +1,9 @@
+{
+  "name": "@libraries/teaser",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "sideEffects": false,
+  "dependencies": {
+    "@segments/carousel": "1.0.0"
+  }
+}
