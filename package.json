@@ -1,0 +1,14 @@
+{
+  "name": "next-swc-scope-collision-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "@test/swc-repro": "file:packages/test_swc",
+    "next": "16.0.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}
