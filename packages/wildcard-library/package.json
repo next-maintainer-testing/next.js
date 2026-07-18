@@ -1,0 +1,11 @@
+{
+  "name": "wildcard-library",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./*": {
+      "types": "./dist/subpath/*.d.ts",
+      "import": "./dist/subpath/*.js"
+    }
+  }
+}

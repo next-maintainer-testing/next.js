@@ -1,0 +1,20 @@
+{
+  "name": "next-46267-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "13.1.7-canary.26",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "wildcard-library": "file:packages/wildcard-library"
+  },
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.12",
+    "@types/react-dom": "18.2.5",
+    "typescript": "5.1.3"
+  }
+}
