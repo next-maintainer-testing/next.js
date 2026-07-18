@@ -1,0 +1,1 @@
+Minimal reproduction for vercel/next.js#59407. It enables experimental PPR and checks whether a production page reload preserves an `id` query parameter in the server-rendered response. The production server runs with `NEXT_PRIVATE_MINIMAL_MODE=1` to exercise the deployment runtime mode in which the reporter observed the bug.

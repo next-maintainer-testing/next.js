@@ -1,0 +1,14 @@
+{
+  "name": "next-59407-search-params-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.0.5-canary.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
