@@ -1,0 +1,21 @@
+{
+  "name": "next-80430-sitemap-xml-repro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "15.1.8",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "saxes": "6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "@types/react": "19.0.3",
+    "typescript": "5.8.3"
+  }
+}
