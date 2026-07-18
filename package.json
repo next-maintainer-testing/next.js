@@ -1,0 +1,14 @@
+{
+  "name": "next-issue-50461-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.mjs"
+  },
+  "dependencies": {
+    "express": "4.18.2",
+    "next": "13.4.5-canary.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
