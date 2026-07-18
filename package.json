@@ -1,0 +1,17 @@
+{
+  "name": "next-60877-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "13.4.13",
+    "next-redux-wrapper": "8.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "8.1.3",
+    "redux": "4.2.1"
+  }
+}
