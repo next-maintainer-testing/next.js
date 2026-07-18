@@ -1,0 +1,15 @@
+{
+  "name": "next-72909-route-double-call",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "next": "15.0.4-canary.15",
+    "puppeteer-core": "23.9.0",
+    "react": "19.0.0-rc-380f5d67-20241113",
+    "react-dom": "19.0.0-rc-380f5d67-20241113"
+  }
+}
