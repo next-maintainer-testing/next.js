@@ -1,0 +1,13 @@
+{
+  "name": "@repro/client-observability",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": { "./client-tracing": "./src/client-tracing.tsx" },
+  "dependencies": {
+    "@grafana/faro-web-tracing": "1.12.2"
+  },
+  "peerDependencies": {
+    "react": "19.0.0"
+  }
+}

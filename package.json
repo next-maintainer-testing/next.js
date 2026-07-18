@@ -1,0 +1,9 @@
+{
+  "name": "issue-74331-reproduction",
+  "private": true,
+  "packageManager": "npm@10.9.0",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace web"
+  }
+}
