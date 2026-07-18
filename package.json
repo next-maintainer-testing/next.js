@@ -1,0 +1,14 @@
+{
+  "name": "next-80186-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "highlight.js": "11.11.1",
+    "next": "15.2.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
