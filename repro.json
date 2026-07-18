@@ -1,0 +1,9 @@
+{
+  "issue": { "number": 93126, "repository": "vercel/next.js" },
+  "versions": { "next": "16.2.4", "react": "19.2.4" },
+  "verify": {
+    "command": "node verify.mjs",
+    "deterministic": false,
+    "timeoutSeconds": 300
+  }
+}
