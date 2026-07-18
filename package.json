@@ -1,0 +1,14 @@
+{
+  "name": "nextjs-79562-doc-output-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "marked": "15.0.12",
+    "next": "15.3.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
