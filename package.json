@@ -1,0 +1,16 @@
+{
+  "name": "nextjs-82387-custom-server-header-timing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "fastify": "4.11.0",
+    "next": "14.2.14",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
