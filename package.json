@@ -1,0 +1,17 @@
+{
+  "name": "next-issue-50561-repro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "next": "13.4.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.16.16",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
+    "typescript": "5.0.2"
+  }
+}
