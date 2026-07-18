@@ -1,0 +1,17 @@
+{
+  "name": "next-77513-turbopack-css-output-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbo",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@ant-design/cssinjs": "1.23.0",
+    "@ant-design/static-style-extract": "1.0.3",
+    "antd": "5.23.1",
+    "next": "14.2.24",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
