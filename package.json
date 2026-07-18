@@ -1,0 +1,13 @@
+{
+  "name": "next-76073-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:debug": "next build --debug"
+  },
+  "dependencies": {
+    "next": "15.1.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
