@@ -1,0 +1,14 @@
+{
+  "name": "next-image-url-parameter-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "12.3.4",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  }
+}
