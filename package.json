@@ -1,0 +1,11 @@
+{
+  "name": "next-78616-reproduction",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["apps/*"],
+  "dependencies": {
+    "next": "15.4.0-canary.12",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev --turbopack"
+  },
+  "dependencies": {
+    "next": "15.4.0-canary.12",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
