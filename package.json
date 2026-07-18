@@ -1,0 +1,14 @@
+{
+  "name": "next-49297-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "13.4.0",
+    "playwright": "1.61.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
