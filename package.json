@@ -1,0 +1,10 @@
+{
+  "name": "issue-79550-cna-github",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "next": "15.3.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
