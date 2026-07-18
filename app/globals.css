@@ -1,0 +1,13 @@
+body {
+  font-family: sans-serif;
+  margin: 3rem;
+}
+button {
+  margin-bottom: 1rem;
+  padding: 0.6rem 1rem;
+}
+[data-testid='card'], [data-testid='fallback'] {
+  border: 1px solid #888;
+  padding: 1rem;
+  width: 20rem;
+}
