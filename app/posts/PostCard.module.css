@@ -1,0 +1,15 @@
+.container {
+  list-style: none;
+  padding: 1em;
+  background-color: peachpuff;
+  font-family: sans-serif;
+}
+
+.title {
+  font-size: 2em;
+  font-weight: lighter;
+}
+
+.text {
+  line-height: 1.5;
+}

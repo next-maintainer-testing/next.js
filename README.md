@@ -1,0 +1,1 @@
+Minimal reproduction for vercel/next.js#46754. In a production build, navigate from `/` to the prefetched `/posts` route. The destination content can render before its CSS-module stylesheet finishes loading, causing a flash of unstyled content.
