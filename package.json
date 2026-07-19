@@ -1,0 +1,13 @@
+{
+  "name": "next-71859-use-cache-error-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.0.2-canary.6",
+    "react": "19.0.0-rc-1631855f-20241023",
+    "react-dom": "19.0.0-rc-1631855f-20241023"
+  }
+}
