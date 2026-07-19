@@ -4,6 +4,8 @@ import {
   computeLegacyCacheBustingSearchParam,
 } from 'next/dist/shared/lib/router/utils/cache-busting-search-param'
 
+// Regression test for https://github.com/vercel/next.js/issues/92907
+
 describe('app dir - validation', () => {
   const { next, skipped } = nextTestSetup({
     files: __dirname,
@@ -57,6 +59,53 @@ describe('app dir - validation', () => {
 
     const res2 = await next.fetch(url2.toString(), { headers: headers2 })
     expect(res2.status).toBe(200)
+  })
+
+  it('should accept router state trees emitted by older clients', async () => {
+    // Next.js 16.1 emitted `true` as the fifth tuple entry. A newer server must
+    // handle this stale client state without failing the soft navigation.
+    const stateTree = encodeURIComponent(
+      JSON.stringify([
+        '',
+        {
+          children: [
+            'about',
+            { children: ['__PAGE__', {}, null, null] },
+            null,
+            null,
+          ],
+        },
+        null,
+        null,
+        true,
+      ])
+    )
+    const headers = {
+      accept: 'text/x-component',
+      rsc: '1',
+      'next-router-prefetch': '1',
+      'next-router-state-tree': stateTree,
+      'next-url': '/',
+    } as const
+    const url = new URL('/about', 'http://localhost')
+    const cacheBustingParam = await computeCacheBustingSearchParam(
+      headers['next-router-prefetch'],
+      undefined,
+      headers['next-router-state-tree'],
+      headers['next-url']
+    )
+    if (cacheBustingParam) {
+      url.searchParams.set('_rsc', cacheBustingParam)
+    }
+
+    const outputStart = next.cliOutput.length
+    const res = await next.fetch(url.toString(), { headers })
+
+    expect(res.status).toBe(200)
+    expect(await res.text()).toContain('About')
+    expect(next.cliOutput.slice(outputStart)).not.toContain(
+      'The router state header was sent but could not be parsed'
+    )
   })
 
   it('should generate distinct cache-busting params for known colliding RSC variants', async () => {
