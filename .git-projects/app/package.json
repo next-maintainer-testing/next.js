@@ -1,0 +1,7 @@
+{
+  "name": "issue-75372-app",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  }
+}
