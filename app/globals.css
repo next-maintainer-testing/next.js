@@ -1,0 +1,8 @@
+a {
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:focus {
+  outline: 2px solid hotpink;
+}
