@@ -1,0 +1,15 @@
+{
+  "name": "next-font-jagged-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "next": "13.4.3",
+    "puppeteer-core": "23.11.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
