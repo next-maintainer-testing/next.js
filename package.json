@@ -1,0 +1,19 @@
+{
+  "name": "next-issue-47097-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@vercel/og": "0.4.0",
+    "next": "13.2.5-canary.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "8.36.0",
+    "eslint-config-next": "13.2.5-canary.2",
+    "typescript": "4.9.5"
+  }
+}
