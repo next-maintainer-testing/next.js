@@ -1,0 +1,10 @@
+html, body, #__next { min-height: 100%; }
+body { margin: 0; background: white; color: black; }
+main { padding: 40px; }
+#font-target {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+}
