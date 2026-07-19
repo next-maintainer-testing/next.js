@@ -1,0 +1,15 @@
+{
+  "name": "next-issue-73507-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "next": "15.0.4-canary.37",
+    "puppeteer-core": "23.10.4",
+    "react": "19.0.0-rc-b01722d5-20241114",
+    "react-dom": "19.0.0-rc-b01722d5-20241114"
+  }
+}

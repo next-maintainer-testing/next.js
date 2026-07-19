@@ -1,0 +1,9 @@
+{
+  "issue": { "number": 73507, "repository": "vercel/next.js" },
+  "versions": { "next": "15.0.4-canary.37", "react": "19.0.0-rc-b01722d5-20241114" },
+  "verify": {
+    "command": "node verify.mjs",
+    "deterministic": false,
+    "timeoutSeconds": 300
+  }
+}
