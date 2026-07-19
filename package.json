@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "15.0.0-canary.148",
+    "react": "19.0.0-rc-7771d3a7-20240827",
+    "react-dom": "19.0.0-rc-7771d3a7-20240827",
+    "simple-package": "file:./simple-package-1.0.4.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "typescript": "5.3.3"
+  }
+}
