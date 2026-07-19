@@ -1,0 +1,15 @@
+{
+  "name": "next-65359-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "133.0.0",
+    "next": "15.3.1-canary.2",
+    "puppeteer-core": "24.6.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
