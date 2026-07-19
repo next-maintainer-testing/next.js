@@ -1,0 +1,14 @@
+{
+  "name": "next-49300-reproduction",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "149.0.0",
+    "next": "13.4.1-canary.2",
+    "playwright-core": "1.61.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
