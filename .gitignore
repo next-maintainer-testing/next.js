@@ -1,0 +1,5 @@
+/.yarn/*
+!/.yarn/releases/
+.pnp.*
+.next/
+node_modules/
