@@ -1,0 +1,10 @@
+{
+  "name": "example-alert",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": "./dist/index.mjs",
+  "peerDependencies": {
+    "@mui/material": "^5.18.0",
+    "react": "^19.0.0"
+  }
+}
