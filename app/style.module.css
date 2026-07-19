@@ -1,0 +1,4 @@
+.hero {
+  min-height: 100px;
+  background-image: url('~@/public/asset.svg');
+}
