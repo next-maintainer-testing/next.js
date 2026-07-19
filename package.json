@@ -1,0 +1,16 @@
+{
+  "name": "next-image-fill-parent-width-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "postinstall": "node install-browser.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "13.4.3",
+    "puppeteer": "24.10.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
