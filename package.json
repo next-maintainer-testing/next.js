@@ -1,0 +1,16 @@
+{
+  "name": "next-issue-75228-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "133.0.0",
+    "next": "15.1.6",
+    "playwright-core": "1.51.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
