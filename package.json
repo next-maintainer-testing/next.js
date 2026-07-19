@@ -1,0 +1,15 @@
+{
+  "name": "nextjs-issue-74252-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "15.1.1-canary.17",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "ts-package-example": "file:./vendor/ts-package-example-1.0.0.tgz"
+  }
+}
