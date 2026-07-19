@@ -1,0 +1,14 @@
+{
+  "name": "next-issue-77178-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "@next/env": "15.2.2",
+    "next": "15.2.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
