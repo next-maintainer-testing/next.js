@@ -1,0 +1,15 @@
+{
+  "name": "next-issue-68177-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@repro/git-dependency": "file:fixtures/node_modules/.pnpm/is-odd@git+https+++git@github.com+jonschlinkert+is-odd.git#a80ee0d831a8ee69f1fad5b4673491847975eb26/node_modules/is-odd",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "packageManager": "pnpm@9.6.0"
+}
