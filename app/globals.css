@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+.geist-font-variables {
+  --font-geist-sans: Arial, sans-serif;
+  --font-geist-mono: "Courier New", monospace;
+}
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}

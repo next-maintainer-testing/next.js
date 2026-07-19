@@ -1,0 +1,11 @@
+{
+  "name": "next-76074-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "next": "15.2.0-canary.61",
+    "playwright-chromium": "1.61.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
