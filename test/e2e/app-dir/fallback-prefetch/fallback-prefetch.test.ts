@@ -5,6 +5,19 @@ describe('fallback-prefetch', () => {
     files: __dirname,
   })
 
+  // Regression test for https://github.com/vercel/next.js/issues/50215
+  it('should stream loading UI on the initial request to a force-static page', async () => {
+    const response = await next.fetch(`/initial-request/${Date.now()}`)
+    const html = await response.text()
+    const loadingMarker = 'Loading initial page...'
+    const pageMarker = 'Initial page, slug:'
+
+    expect(response.status).toBe(200)
+    expect(html).toContain(loadingMarker)
+    expect(html).toContain(pageMarker)
+    expect(html.indexOf(loadingMarker)).toBeLessThan(html.indexOf(pageMarker))
+  })
+
   it('should prefetch the page without errors', async () => {
     let hasNetworkError = false
     const browser = await next.browser('/', {
