@@ -1,0 +1,15 @@
+{
+  "name": "next-55208-url-masking-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "next": "13.4.20-canary.23",
+    "puppeteer-core": "23.10.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
