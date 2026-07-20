@@ -1,0 +1,17 @@
+{
+  "name": "next-74977-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.2.0-canary.12",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "puppeteer-core": "23.10.4"
+  }
+}
