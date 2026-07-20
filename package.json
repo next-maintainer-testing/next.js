@@ -1,0 +1,13 @@
+{
+  "name": "next-74961-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.2.0-canary.12",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
