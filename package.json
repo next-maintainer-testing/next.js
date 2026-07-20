@@ -1,0 +1,19 @@
+{
+  "name": "next-65160-dynamic-hydration-repro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "138.0.2",
+    "puppeteer-core": "24.15.0"
+  }
+}

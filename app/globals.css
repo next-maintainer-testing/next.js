@@ -1,0 +1,5 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: sans-serif; }
+header { min-height: 80px; padding: 24px; }
+#dynamic-content { background: #2563eb; color: white; padding: 16px; }
+#dynamic-loading { background: #dc2626; color: white; padding: 16px; }
