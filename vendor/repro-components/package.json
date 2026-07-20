@@ -1,0 +1,8 @@
+{
+  "name": "repro-components",
+  "version": "1.0.0",
+  "main": "dist/components.cjs.js",
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}
