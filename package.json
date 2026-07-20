@@ -1,0 +1,12 @@
+{
+  "name": "next-issue-73094-repro",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "next": "15.0.4-canary.22",
+    "react": "19.0.0-rc-380f5d67-20241113",
+    "react-dom": "19.0.0-rc-380f5d67-20241113"
+  }
+}
