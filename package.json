@@ -1,0 +1,23 @@
+{
+  "name": "next-69970-fluentui-popover",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "9.54.13",
+    "@fluentui/react-popover": "9.9.19",
+    "@fluentui/react-portal": "9.4.33",
+    "@fluentui/react-positioning": "9.15.7",
+    "@fluentui/react-tabster": "9.22.5",
+    "@fluentui/react-utilities": "9.18.13",
+    "@sparticuz/chromium": "131.0.1",
+    "next": "14.2.0",
+    "puppeteer-core": "23.10.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
