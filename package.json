@@ -1,0 +1,16 @@
+{
+  "name": "issue-66503-graphql-cache-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "graphql": "16.8.1",
+    "graphql-request": "6.1.0",
+    "next": "14.2.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
