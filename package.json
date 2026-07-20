@@ -1,0 +1,13 @@
+{
+  "name": "next-71810-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "15.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
