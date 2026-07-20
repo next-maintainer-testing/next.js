@@ -36,6 +36,26 @@ describe('app dir - next/dynamic', () => {
     expect(serverContent).not.toContain('next-dynamic dynamic no ssr on client')
   })
 
+  // Regression test for https://github.com/vercel/next.js/issues/61066
+  it('should not include an unused dynamically imported client component in the initial bundles', async () => {
+    const marker = 'Dynamic Component That Should Not Be Here'
+    const $ = await next.render$('/dynamic/unused-client')
+
+    expect($('body').text()).not.toContain(marker)
+
+    const initialBundleContents = await Promise.all(
+      $('script[src]')
+        .toArray()
+        .map((script) =>
+          next.fetch($(script).attr('src')).then((response) => response.text())
+        )
+    )
+
+    expect(
+      initialBundleContents.some((content) => content.includes(marker))
+    ).toBe(false)
+  })
+
   it('should handle next/dynamic in hydration correctly', async () => {
     const browser = await next.browser('/dynamic')
     await browser.waitForElementByCss('#css-text-dynamic-no-ssr-client')
