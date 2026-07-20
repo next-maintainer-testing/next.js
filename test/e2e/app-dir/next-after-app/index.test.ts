@@ -196,6 +196,28 @@ describe.each(runtimes)('after() in %s runtime', (runtimeValue) => {
     })
   })
 
+  // Regression test for https://github.com/vercel/next.js/issues/74941
+  it('runs middleware callbacks after page rendering starts', async () => {
+    const requestId = `${Date.now()}`
+    const res = await next.fetch(
+      pathPrefix + `/middleware/render-order?requestId=${requestId}`
+    )
+
+    expect(res.status).toBe(200)
+    await res.text()
+
+    await retry(() => {
+      expect(
+        getLogs()
+          .filter((log) => log.requestId === requestId)
+          .map((log) => log.source)
+      ).toEqual([
+        '[page] /middleware/render-order',
+        '[middleware] /middleware/render-order',
+      ])
+    })
+  })
+
   it('runs in middleware', async () => {
     const requestId = `${Date.now()}`
     const res = await next.fetch(

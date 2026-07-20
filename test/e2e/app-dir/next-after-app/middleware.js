@@ -9,6 +9,22 @@ export async function middleware(
 
   {
     const match = url.pathname.match(
+      /^(?<prefix>\/[^/]+?)\/middleware\/render-order/
+    )
+    if (match) {
+      const requestId = url.searchParams.get('requestId')
+      after(() => {
+        cliLog({
+          source: '[middleware] /middleware/render-order',
+          requestId,
+        })
+      })
+      return NextResponse.next()
+    }
+  }
+
+  {
+    const match = url.pathname.match(
       /^(?<prefix>\/[^/]+?)\/middleware\/redirect-source/
     )
     if (match) {
