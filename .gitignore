@@ -1,0 +1,4 @@
+node_modules/
+.next-disabled/
+.next-enabled/
+trace-fixture/
