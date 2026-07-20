@@ -1,0 +1,4 @@
+node_modules
+.next
+cache-handler.jsonl
+npm-debug.log*
