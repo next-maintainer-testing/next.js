@@ -1,0 +1,13 @@
+{
+  "name": "next-issue-11016-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "9.3.0",
+    "react": "16.13.0",
+    "react-dom": "16.13.0"
+  }
+}
