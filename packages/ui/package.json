@@ -1,0 +1,11 @@
+{
+  "name": "@repro/ui",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./button": "./button.js"
+  },
+  "peerDependencies": {
+    "react": "18.2.0"
+  }
+}

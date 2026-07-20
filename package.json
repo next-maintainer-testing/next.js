@@ -1,0 +1,16 @@
+{
+  "name": "issue-59374-css-order",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@repro/ui": "file:packages/ui",
+    "next": "14.0.4-canary.47",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
