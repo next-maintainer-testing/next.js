@@ -1,0 +1,20 @@
+{
+  "name": "next-22069-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "next": "10.0.5",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "overrides": {
+    "next@10.0.5": {
+      "postcss": "8.2.15"
+    }
+  }
+}
