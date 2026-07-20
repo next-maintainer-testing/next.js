@@ -19,11 +19,9 @@ function validResumeDataCacheTail(): string {
 
 // These tests exercise the real minimal-mode resume path: the body of a
 // `next-resume` POST is read in base-server and handed to
-// `parsePostponedState`. A malformed body fails to parse, and the framework
-// degrades to a dynamic render (status 200). The assertions verify that the
-// failure is logged with content-free structural diagnostics that identify
-// *how* the state was malformed, so the otherwise-opaque error is actionable in
-// production.
+// `parsePostponedState`. Valid compressed bodies should be decoded before
+// parsing. Malformed bodies fail to parse and degrade to a dynamic render
+// (status 200); those assertions verify content-free structural diagnostics.
 describe('postponed resume - parse failure diagnostics', () => {
   const { next } = nextTestSetup({
     files: __dirname,
@@ -36,7 +34,11 @@ describe('postponed resume - parse failure diagnostics', () => {
     },
   })
 
-  async function postResume(slug: string, body: string) {
+  async function postResume(
+    slug: string,
+    body: BodyInit,
+    extraHeaders: Record<string, string> = {}
+  ) {
     const outputIndex = next.cliOutput.length
     const response = await next.fetch(`/dynamic/${slug}`, {
       method: 'POST',
@@ -45,11 +47,31 @@ describe('postponed resume - parse failure diagnostics', () => {
         'content-type': 'text/plain',
         'x-matched-path': MATCHED_PATH,
         'x-now-route-matches': createNowRouteMatches({ slug }).toString(),
+        ...extraHeaders,
       },
       body,
     })
     return { response, outputIndex }
   }
+
+  // Regression test for https://github.com/vercel/next.js/issues/95214.
+  it('decodes a gzip-compressed postponed state before parsing', async () => {
+    const { postponed } = await next.readJSON('.next/server/app/dynamic/a.meta')
+    expect(postponed).toEqual(expect.any(String))
+    expect(postponed.length).toBeGreaterThan(0)
+
+    const { response, outputIndex } = await postResume(
+      'a',
+      zlib.gzipSync(postponed),
+      {
+        'content-encoding': 'gzip',
+      }
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain('a')
+    expect(next.cliOutput.slice(outputIndex)).not.toContain(PARSE_ERROR)
+  })
 
   it('reports a truncated postponed string (incomplete delivery) as Z_BUF', async () => {
     // Declares a 100-char postponed string but delivers far fewer bytes, so the
