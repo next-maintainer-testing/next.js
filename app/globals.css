@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: sans-serif; padding: 24px; }
+.scroll-container {
+  border: 1px solid #888;
+  height: 180px;
+  overflow-y: auto;
+  padding: 12px;
+}
+.spacer { height: 240px; }
+input { display: block; width: 240px; }

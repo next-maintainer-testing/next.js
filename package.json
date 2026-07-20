@@ -1,0 +1,15 @@
+{
+  "name": "next-54838-focus-reproduction",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "@playwright/browser-firefox": "1.61.1",
+    "next": "13.4.20-canary.13",
+    "playwright-core": "1.61.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
