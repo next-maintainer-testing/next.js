@@ -1,0 +1,15 @@
+{
+  "name": "next-image-onerror-rerender-repro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "jsdom": "22.1.0",
+    "next": "14.0.5-canary.32",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
