@@ -11,37 +11,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  eligibility:
+  review:
     if: >-
       github.repository == 'next-maintainer-testing/next.js' &&
       github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      eligible: ${{ steps.check.outputs.result }}
-    steps:
-      - name: Check member eligibility
-        id: check
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          result-encoding: string
-          script: |
-            const { data: pullRequest } = await github.rest.pulls.get({
-              owner: "next-maintainer-testing",
-              repo: "next.js",
-              pull_number: context.payload.pull_request.number,
-            });
-            return String(
-              pullRequest.state === "open" &&
-              !pullRequest.draft &&
-              pullRequest.author_association === "MEMBER" &&
-              pullRequest.base.ref === "canary",
-            );
-
-  review:
-    needs: eligibility
-    if: needs.eligibility.outputs.eligible == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 55
     permissions:
@@ -49,6 +22,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Run automated review
+        id: review
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           REVIEWER_ORIGIN: ${{ vars.PR_REVIEW_E2E_ORIGIN }}
@@ -117,6 +91,14 @@ jobs:
               }
               if (
                 response.status === 409 &&
+                response.data?.error === "ineligible_pull_request"
+              ) {
+                core.info("The pull request is not eligible for automated review.");
+                core.setOutput("completed", "false");
+                return;
+              }
+              if (
+                response.status === 409 &&
                 response.data?.error === "review_starting"
               ) {
                 await wait(2_000);
@@ -160,6 +142,7 @@ jobs:
                   encoding: "utf8",
                   mode: 0o600,
                 });
+                core.setOutput("completed", "true");
                 return;
               }
               if (response.data?.status !== "running") {
@@ -170,6 +153,7 @@ jobs:
             throw new Error("Automated review timed out after 50 minutes.");
 
       - name: Validate and publish one comment
+        if: steps.review.outputs.completed == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
@@ -205,7 +189,6 @@ jobs:
             if (
               pullRequest.state !== "open" ||
               pullRequest.draft ||
-              pullRequest.author_association !== "MEMBER" ||
               pullRequest.base.sha !== result.baseSha ||
               pullRequest.head.sha !== result.headSha
             ) {
