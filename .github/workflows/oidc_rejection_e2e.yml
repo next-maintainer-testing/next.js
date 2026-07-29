@@ -1,0 +1,37 @@
+name: OIDC Rejection E2E
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  reject-wrong-workflow:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Verify exact workflow claims are required
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          REVIEWER_ORIGIN: ${{ vars.PR_REVIEW_E2E_ORIGIN }}
+          VERCEL_BYPASS: ${{ secrets.PR_REVIEW_E2E_VERCEL_BYPASS }}
+        with:
+          script: |
+            const token = await core.getIDToken("next-maintainer-pr-reviewer");
+            core.setSecret(token);
+            const response = await fetch(
+              `${process.env.REVIEWER_ORIGIN}/api/github/pr-review`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  "x-vercel-protection-bypass": process.env.VERCEL_BYPASS,
+                },
+                body: JSON.stringify({ number: 38 }),
+              },
+            );
+            if (response.status !== 401) {
+              throw new Error(`Expected 401 for wrong workflow claims, received ${response.status}.`);
+            }
