@@ -11,11 +11,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  review:
+  eligibility:
     if: >-
       github.repository == 'next-maintainer-testing/next.js' &&
-      github.event.pull_request.author_association == 'MEMBER' &&
       github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      eligible: ${{ steps.check.outputs.result }}
+    steps:
+      - name: Check member eligibility
+        id: check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          result-encoding: string
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: "next-maintainer-testing",
+              repo: "next.js",
+              pull_number: context.payload.pull_request.number,
+            });
+            return String(
+              pullRequest.state === "open" &&
+              !pullRequest.draft &&
+              pullRequest.author_association === "MEMBER" &&
+              pullRequest.base.ref === "canary",
+            );
+
+  review:
+    needs: eligibility
+    if: needs.eligibility.outputs.eligible == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 55
     permissions:
