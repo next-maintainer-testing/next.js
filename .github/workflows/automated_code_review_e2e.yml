@@ -11,6 +11,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  diagnose-context:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Report eligibility context
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const pullRequest = context.payload.pull_request;
+            core.info(JSON.stringify({
+              repository: `${context.repo.owner}/${context.repo.repo}`,
+              action: context.payload.action,
+              association: pullRequest?.author_association,
+              draft: pullRequest?.draft,
+              number: pullRequest?.number,
+            }));
+
   review:
     if: >-
       github.repository == 'next-maintainer-testing/next.js' &&
