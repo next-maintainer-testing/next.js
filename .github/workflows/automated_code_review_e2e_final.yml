@@ -226,6 +226,7 @@ jobs:
               pullRequest.state !== "open" ||
               pullRequest.draft ||
               pullRequest.base.ref !== expectedBaseRef ||
+              pullRequest.base.sha !== expectedBaseSha ||
               currentDiffSha256 !== result.diffSha256 ||
               pullRequest.head.sha !== result.headSha
             ) {
@@ -344,6 +345,7 @@ jobs:
               pullRequest.state !== "open" ||
               pullRequest.draft ||
               pullRequest.base?.ref !== context.payload.pull_request.base.ref ||
+              pullRequest.base?.sha !== result.baseSha ||
               currentDiffSha256 !== result.diffSha256 ||
               pullRequest.head?.sha !== result.headSha
             ) {
