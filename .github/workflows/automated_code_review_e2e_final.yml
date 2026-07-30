@@ -175,7 +175,6 @@ jobs:
             const repo = "next.js";
             const number = context.payload.pull_request.number;
             const expectedBaseRef = context.payload.pull_request.base.ref;
-            const expectedBaseSha = context.payload.pull_request.base.sha;
             const expectedHeadSha = context.payload.pull_request.head.sha;
             const maxDiffBytes = 20 * 1024 * 1024;
             const marker = `<!-- next-maintainer-pr-review:v2:next-maintainer-testing/next.js#${number} -->`;
@@ -186,7 +185,8 @@ jobs:
             if (
               result?.repository !== "next-maintainer-testing/next.js" ||
               result?.number !== number ||
-              result?.baseSha !== expectedBaseSha ||
+              typeof result?.baseSha !== "string" ||
+              !/^[a-f0-9]{40}$/.test(result.baseSha) ||
               typeof result?.diffSha256 !== "string" ||
               !/^[a-f0-9]{64}$/.test(result.diffSha256) ||
               result?.headSha !== expectedHeadSha ||
@@ -237,7 +237,9 @@ jobs:
               currentDiffSha256 !== result.diffSha256 ||
               pullRequest.head.sha !== result.headSha
             ) {
-              throw new Error("The pull request is no longer eligible for this review.");
+              core.warning("The pull request changed while review was running; skipping publication.");
+              core.setOutput("publish", "false");
+              return;
             }
 
             const synthesis = result.synthesis
@@ -301,7 +303,8 @@ jobs:
               number <= 0 ||
               result?.repository !== "next-maintainer-testing/next.js" ||
               result?.number !== number ||
-              result?.baseSha !== context.payload.pull_request.base.sha ||
+              typeof result?.baseSha !== "string" ||
+              !/^[a-f0-9]{40}$/.test(result.baseSha) ||
               typeof result?.diffSha256 !== "string" ||
               !/^[a-f0-9]{64}$/.test(result.diffSha256) ||
               result?.headSha !== context.payload.pull_request.head.sha
@@ -321,7 +324,33 @@ jobs:
               Authorization: `Bearer ${readToken}`,
               "X-GitHub-Api-Version": "2022-11-28",
             });
-            const [response, baseRefResponse, diffResponse] = await Promise.all([
+            const body = await fs.readFile(
+              `${process.env.RUNNER_TEMP}/automated-code-review-comment.md`,
+              "utf8",
+            );
+            const commentId = process.env.COMMENT_ID;
+            if (commentId && !/^[1-9][0-9]*$/.test(commentId)) {
+              throw new Error("The selected comment ID is invalid.");
+            }
+
+            const diffResponse = await fetch(pullRequestUrl, {
+              headers: {
+                ...readHeaders("application/vnd.github.diff"),
+              },
+              signal: AbortSignal.timeout(60_000),
+            });
+            if (!diffResponse.ok) {
+              throw new Error(
+                `Final pull request diff validation returned status ${diffResponse.status}.`,
+              );
+            }
+            const currentDiff = Buffer.from(await diffResponse.arrayBuffer());
+            if (currentDiff.byteLength > maxDiffBytes) {
+              throw new Error("The pull request diff exceeds the review limit.");
+            }
+            const currentDiffSha256 = createHash("sha256").update(currentDiff).digest("hex");
+
+            const [response, baseRefResponse] = await Promise.all([
               fetch(pullRequestUrl, {
                 headers: {
                   ...readHeaders("application/vnd.github+json"),
@@ -334,16 +363,10 @@ jobs:
                 },
                 signal: AbortSignal.timeout(60_000),
               }),
-              fetch(pullRequestUrl, {
-                headers: {
-                  ...readHeaders("application/vnd.github.diff"),
-                },
-                signal: AbortSignal.timeout(60_000),
-              }),
             ]);
-            if (!response.ok || !baseRefResponse.ok || !diffResponse.ok) {
+            if (!response.ok || !baseRefResponse.ok) {
               throw new Error(
-                `Final pull request validation returned status ${response.status}/${baseRefResponse.status}/${diffResponse.status}.`,
+                `Final pull request validation returned status ${response.status}/${baseRefResponse.status}.`,
               );
             }
             let pullRequest;
@@ -356,11 +379,6 @@ jobs:
             } catch {
               throw new Error("Final pull request validation returned malformed JSON.");
             }
-            const currentDiff = Buffer.from(await diffResponse.arrayBuffer());
-            if (currentDiff.byteLength > maxDiffBytes) {
-              throw new Error("The pull request diff exceeds the review limit.");
-            }
-            const currentDiffSha256 = createHash("sha256").update(currentDiff).digest("hex");
             if (
               pullRequest.state !== "open" ||
               pullRequest.draft ||
@@ -372,15 +390,7 @@ jobs:
               throw new Error("The pull request is no longer eligible for this review.");
             }
 
-            const body = await fs.readFile(
-              `${process.env.RUNNER_TEMP}/automated-code-review-comment.md`,
-              "utf8",
-            );
-            const commentId = process.env.COMMENT_ID;
             if (commentId) {
-              if (!/^[1-9][0-9]*$/.test(commentId)) {
-                throw new Error("The selected comment ID is invalid.");
-              }
               await github.rest.issues.updateComment({
                 owner: "next-maintainer-testing",
                 repo: "next.js",
