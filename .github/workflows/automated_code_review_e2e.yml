@@ -15,9 +15,11 @@ concurrency:
 
 jobs:
   review:
+    # This repository's maintainer is its organization owner, so the event
+    # reports OWNER instead of production's MEMBER. The backend still performs
+    # the authoritative organization-membership check.
     if: >-
       github.repository == 'next-maintainer-testing/next.js' &&
-      github.event.pull_request.author_association == 'MEMBER' &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 55
