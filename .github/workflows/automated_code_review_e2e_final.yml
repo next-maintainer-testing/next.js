@@ -39,7 +39,7 @@ jobs:
           script: |
             const fs = require("node:fs/promises");
             const apiOrigin =
-              "https://next-maintainer-pr-reviewer-fmvce6bod.playground-vercel.tools";
+              "https://next-maintainer-pr-reviewer-e2e.playground-vercel.tools";
             const audience = "next-maintainer-pr-reviewer";
             const resultPath = `${process.env.RUNNER_TEMP}/automated-code-review-result.json`;
             const deadline = Date.now() + 50 * 60 * 1000;
