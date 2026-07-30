@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     permissions:
+      contents: read
       id-token: write
       pull-requests: write
     steps:
@@ -197,21 +198,27 @@ jobs:
             const readToken = process.env.READ_TOKEN;
             if (!readToken) throw new Error("The read-only GitHub token is unavailable.");
             core.setSecret(readToken);
-            const [{ data: pullRequest }, diffResponse] = await Promise.all([
-              github.rest.pulls.get({
-                owner,
-                repo,
-                pull_number: number,
-              }),
-              fetch(`https://api.github.com/repos/next-maintainer-testing/next.js/pulls/${number}`, {
-                headers: {
-                  Accept: "application/vnd.github.diff",
-                  Authorization: `Bearer ${readToken}`,
-                  "X-GitHub-Api-Version": "2022-11-28",
-                },
-                signal: AbortSignal.timeout(60_000),
-              }),
-            ]);
+            const [{ data: pullRequest }, { data: baseReference }, diffResponse] =
+              await Promise.all([
+                github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: number,
+                }),
+                github.rest.git.getRef({
+                  owner,
+                  repo,
+                  ref: `heads/${expectedBaseRef}`,
+                }),
+                fetch(`https://api.github.com/repos/next-maintainer-testing/next.js/pulls/${number}`, {
+                  headers: {
+                    Accept: "application/vnd.github.diff",
+                    Authorization: `Bearer ${readToken}`,
+                    "X-GitHub-Api-Version": "2022-11-28",
+                  },
+                  signal: AbortSignal.timeout(60_000),
+                }),
+              ]);
             if (!diffResponse.ok) {
               throw new Error(
                 `Pull request diff validation returned status ${diffResponse.status}.`,
@@ -226,7 +233,7 @@ jobs:
               pullRequest.state !== "open" ||
               pullRequest.draft ||
               pullRequest.base.ref !== expectedBaseRef ||
-              pullRequest.base.sha !== expectedBaseSha ||
+              baseReference.object.sha !== result.baseSha ||
               currentDiffSha256 !== result.diffSha256 ||
               pullRequest.head.sha !== result.headSha
             ) {
@@ -306,13 +313,22 @@ jobs:
             if (!readToken) throw new Error("The read-only GitHub token is unavailable.");
             core.setSecret(readToken);
             const pullRequestUrl = `https://api.github.com/repos/next-maintainer-testing/next.js/pulls/${number}`;
+            const baseRefUrl = `https://api.github.com/repos/next-maintainer-testing/next.js/git/ref/heads/${encodeURIComponent(
+              context.payload.pull_request.base.ref,
+            )}`;
             const readHeaders = (accept) => ({
               Accept: accept,
               Authorization: `Bearer ${readToken}`,
               "X-GitHub-Api-Version": "2022-11-28",
             });
-            const [response, diffResponse] = await Promise.all([
+            const [response, baseRefResponse, diffResponse] = await Promise.all([
               fetch(pullRequestUrl, {
+                headers: {
+                  ...readHeaders("application/vnd.github+json"),
+                },
+                signal: AbortSignal.timeout(60_000),
+              }),
+              fetch(baseRefUrl, {
                 headers: {
                   ...readHeaders("application/vnd.github+json"),
                 },
@@ -325,14 +341,18 @@ jobs:
                 signal: AbortSignal.timeout(60_000),
               }),
             ]);
-            if (!response.ok || !diffResponse.ok) {
+            if (!response.ok || !baseRefResponse.ok || !diffResponse.ok) {
               throw new Error(
-                `Final pull request validation returned status ${response.status}/${diffResponse.status}.`,
+                `Final pull request validation returned status ${response.status}/${baseRefResponse.status}/${diffResponse.status}.`,
               );
             }
             let pullRequest;
+            let baseReference;
             try {
-              pullRequest = await response.json();
+              [pullRequest, baseReference] = await Promise.all([
+                response.json(),
+                baseRefResponse.json(),
+              ]);
             } catch {
               throw new Error("Final pull request validation returned malformed JSON.");
             }
@@ -345,7 +365,7 @@ jobs:
               pullRequest.state !== "open" ||
               pullRequest.draft ||
               pullRequest.base?.ref !== context.payload.pull_request.base.ref ||
-              pullRequest.base?.sha !== result.baseSha ||
+              baseReference.object?.sha !== result.baseSha ||
               currentDiffSha256 !== result.diffSha256 ||
               pullRequest.head?.sha !== result.headSha
             ) {
