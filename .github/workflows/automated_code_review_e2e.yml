@@ -154,7 +154,6 @@ jobs:
               `query($owner: String!, $repo: String!, $number: Int!) {
                 repository(owner: $owner, name: $repo) {
                   pullRequest(number: $number) {
-                    authorAssociation
                     baseRefName
                     baseRefOid
                     headRefOid
@@ -169,7 +168,6 @@ jobs:
             if (
               current?.state !== "OPEN" ||
               current.isDraft ||
-              !["MEMBER", "OWNER"].includes(current.authorAssociation) ||
               current.baseRefName !== pullRequest.base.ref ||
               current.headRefOid !== result.headSha ||
               current.baseRefOid !== result.baseSha
@@ -268,7 +266,6 @@ jobs:
                 query: `query($number: Int!) {
                   repository(owner: "next-maintainer-testing", name: "next.js") {
                     pullRequest(number: $number) {
-                      authorAssociation
                       baseRefName
                       baseRefOid
                       headRefOid
@@ -299,7 +296,6 @@ jobs:
             if (
               pullRequest?.state !== "OPEN" ||
               pullRequest.isDraft ||
-              !["MEMBER", "OWNER"].includes(pullRequest.authorAssociation) ||
               pullRequest.baseRefName !== state.baseRef ||
               pullRequest.headRefOid !== state.headSha ||
               pullRequest.baseRefOid !== state.baseSha
