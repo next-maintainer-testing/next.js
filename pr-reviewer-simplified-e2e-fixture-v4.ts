@@ -5,3 +5,5 @@ export function chunkItems<T>(items: T[], size: number) {
   }
   return chunks
 }
+
+export const fixtureVersion = 2
