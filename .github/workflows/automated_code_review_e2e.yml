@@ -169,7 +169,7 @@ jobs:
             if (
               current?.state !== "OPEN" ||
               current.isDraft ||
-              current.authorAssociation !== "MEMBER" ||
+              !["MEMBER", "OWNER"].includes(current.authorAssociation) ||
               current.baseRefName !== pullRequest.base.ref ||
               current.headRefOid !== result.headSha ||
               current.baseRefOid !== result.baseSha
@@ -299,7 +299,7 @@ jobs:
             if (
               pullRequest?.state !== "OPEN" ||
               pullRequest.isDraft ||
-              pullRequest.authorAssociation !== "MEMBER" ||
+              !["MEMBER", "OWNER"].includes(pullRequest.authorAssociation) ||
               pullRequest.baseRefName !== state.baseRef ||
               pullRequest.headRefOid !== state.headSha ||
               pullRequest.baseRefOid !== state.baseSha
