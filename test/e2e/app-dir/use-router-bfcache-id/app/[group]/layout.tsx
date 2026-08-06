@@ -11,6 +11,9 @@ export default function GroupLayout({ children }: { children: ReactNode }) {
       <nav>
         <LinkAccordion href="/x/1">/x/1</LinkAccordion>
         <LinkAccordion href="/x/2">/x/2</LinkAccordion>
+        <LinkAccordion href="/x/2?newEntry=true">
+          /x/2?newEntry=true
+        </LinkAccordion>
         <LinkAccordion href="/y/1">/y/1</LinkAccordion>
       </nav>
       <form key={bfcacheId}>
