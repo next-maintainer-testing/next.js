@@ -58,33 +58,33 @@ jobs:
                 'console.log(new Date(Date.parse(process.argv[1]) + Number(process.argv[2])).toISOString())' \
                 "$closed_at" "$offset")
               requester=$(jq '.user' <<<"$issue")
-              jq -n \
-                --arg body='Reopen: Synthetic timestamp boundary probe.' \
-                --arg created_at "$created_at" \
-                --argjson issue "$issue" \
+              jq \
+                --arg body 'Reopen: Synthetic timestamp boundary probe.' \
+                --arg requested_at "$created_at" \
                 --argjson requester "$requester" \
-                '{issue: $issue, comment: {body: $body, created_at: $created_at, user: $requester}}' \
+                '. as $issue | {issue: $issue, comment: {body: $body, created_at: $requested_at, user: $requester}}' \
+                <<<"$issue" \
                 >"$event_path"
               event_name=issue_comment
               ;;
             bot-request)
-              jq -n \
-                --argjson issue "$issue" \
-                '{issue: $issue, comment: {body: "Reopen: Bot request probe.", created_at: $issue.closed_at, user: {id: 1, login: "probe[bot]", type: "Bot"}}}' \
+              jq \
+                '. as $issue | {issue: $issue, comment: {body: "Reopen: Bot request probe.", created_at: $issue.closed_at, user: {id: 1, login: "probe[bot]", type: "Bot"}}}' \
+                <<<"$issue" \
                 >"$event_path"
               event_name=issue_comment
               ;;
             legacy-bot-request)
-              jq -n \
-                --argjson issue "$issue" \
-                '{issue: $issue, comment: {body: "Reopen: Legacy bot request probe.", created_at: $issue.closed_at, user: {id: 2, login: "probe-bot", type: "User"}}}' \
+              jq \
+                '. as $issue | {issue: $issue, comment: {body: "Reopen: Legacy bot request probe.", created_at: $issue.closed_at, user: {id: 2, login: "probe-bot", type: "User"}}}' \
+                <<<"$issue" \
                 >"$event_path"
               event_name=issue_comment
               ;;
             bot-closure)
-              jq -n \
-                --argjson issue "$issue" \
-                '{issue: $issue, sender: $issue.closed_by}' \
+              jq \
+                '. as $issue | {issue: $issue, sender: $issue.closed_by}' \
+                <<<"$issue" \
                 >"$event_path"
               event_name=issues
               ;;
