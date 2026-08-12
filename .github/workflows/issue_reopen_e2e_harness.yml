@@ -1,0 +1,96 @@
+name: Issue reopen E2E harness
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Mutation to perform as github-actions[bot]
+        required: true
+        type: choice
+        options:
+          - create
+          - comment
+          - close
+          - create-and-close
+          - lock
+          - unlock
+          - bulk-comment
+      issue-number:
+        description: Issue number for operations on an existing issue
+        required: false
+        type: string
+      title:
+        description: Title for a new issue
+        required: false
+        type: string
+      body:
+        description: Issue or comment body
+        required: false
+        type: string
+      count:
+        description: Number of comments for bulk-comment
+        required: false
+        default: '0'
+        type: string
+
+permissions: {}
+
+jobs:
+  mutate:
+    if: github.repository == 'next-maintainer-testing/next.js'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Mutate test issue
+        env:
+          BODY: ${{ inputs.body }}
+          COUNT: ${{ inputs.count }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue-number }}
+          OPERATION: ${{ inputs.operation }}
+          REPOSITORY: ${{ github.repository }}
+          TITLE: ${{ inputs.title }}
+        run: |
+          set -euo pipefail
+
+          case "$OPERATION" in
+            create)
+              gh api --method POST "repos/$REPOSITORY/issues" \
+                -f title="$TITLE" \
+                -f body="$BODY" \
+                --jq '.number'
+              ;;
+            comment)
+              gh api --method POST "repos/$REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+                -f body="$BODY" \
+                --jq '.id'
+              ;;
+            close)
+              gh api --method PATCH "repos/$REPOSITORY/issues/$ISSUE_NUMBER" \
+                -f state=closed \
+                --jq '.number'
+              ;;
+            create-and-close)
+              created_number=$(gh api --method POST "repos/$REPOSITORY/issues" \
+                -f title="$TITLE" \
+                -f body="$BODY" \
+                --jq '.number')
+              gh api --method PATCH "repos/$REPOSITORY/issues/$created_number" \
+                -f state=closed \
+                --jq '.number'
+              ;;
+            lock)
+              gh api --method PUT "repos/$REPOSITORY/issues/$ISSUE_NUMBER/lock"
+              ;;
+            unlock)
+              gh api --method DELETE "repos/$REPOSITORY/issues/$ISSUE_NUMBER/lock"
+              ;;
+            bulk-comment)
+              for ((index = 1; index <= COUNT; index++)); do
+                gh api --method POST "repos/$REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+                  -f body="E2E filler comment $index" \
+                  --silent
+              done
+              ;;
+          esac
