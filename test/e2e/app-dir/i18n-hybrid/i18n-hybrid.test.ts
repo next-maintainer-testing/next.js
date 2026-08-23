@@ -1,3 +1,4 @@
+// Regression test for https://github.com/vercel/next.js/issues/53724.
 // @ts-check
 
 // @ts-ignore
@@ -21,6 +22,16 @@ const urls = [
           },
         },
       ]),
+
+  // An i18n locale prefix should remain available to an App Router dynamic
+  // segment when that segment is part of the route.
+  {
+    pathname: '/fr-FR/localized-route',
+    expected: {
+      pathname: '/fr-FR/localized-route',
+      page: '/app/[locale]/localized-route/page.js',
+    },
+  },
 
   // Include the app pages with locales (should not resolve).
   ...i18n.locales.map((locale) => ({
