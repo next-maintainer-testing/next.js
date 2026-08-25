@@ -1,6 +1,7 @@
 import { nextTestSetup } from 'e2e-utils'
 import { retry } from 'next-test-utils'
 
+// Regression test for https://github.com/vercel/next.js/issues/62046.
 describe('empty-generate-static-params', () => {
   const { next, skipped } = nextTestSetup({
     files: __dirname,
@@ -36,6 +37,12 @@ describe('empty-generate-static-params', () => {
         expect(secondResponse.status).toBe(200)
         expect(secondResponse.headers.get('x-nextjs-cache')).toBe('HIT')
       })
+    })
+
+    it('should render the custom error boundary for an on-demand route', async () => {
+      const $ = await next.render$('/error')
+
+      expect($('#error-boundary').text()).toBe('Custom error boundary')
     })
   } else {
     it('should throw an error when generateStaticParams returns an empty array', async () => {

@@ -16,7 +16,13 @@ export default async function Page({
 }
 
 async function Params({ params }: { params: Promise<{ slug: string }> }) {
-  return <Suspense>{(await params).slug}</Suspense>
+  const { slug } = await params
+
+  if (slug === 'error') {
+    throw new Error('failed to render dynamic route')
+  }
+
+  return <Suspense>{slug}</Suspense>
 }
 
 export async function generateStaticParams() {
